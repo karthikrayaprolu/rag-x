@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "RAGster - RAG Portal",
+  title: "RAGx - RAG Portal",
   description: "Upload documents, connect databases, and chat with your data using RAG",
 };
 

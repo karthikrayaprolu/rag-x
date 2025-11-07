@@ -1,30 +1,53 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
   <defs>
-    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#9333ea;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#3b82f6;stop-opacity:1" />
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#888888;stop-opacity:1" />
     </linearGradient>
   </defs>
   
-  <!-- Circular background -->
-  <circle cx="100" cy="100" r="90" fill="url(#grad1)" opacity="0.2"/>
+  <!-- Outer Circle -->
+  <circle cx="100" cy="100" r="85" fill="none" stroke="url(#grad)" stroke-width="3" opacity="0.3"/>
   
-  <!-- Main icon - Document with AI symbol -->
-  <rect x="60" y="40" width="80" height="100" rx="5" fill="url(#grad1)" opacity="0.8"/>
-  <rect x="70" y="50" width="60" height="4" fill="white" opacity="0.9" rx="2"/>
-  <rect x="70" y="62" width="50" height="4" fill="white" opacity="0.7" rx="2"/>
-  <rect x="70" y="74" width="55" height="4" fill="white" opacity="0.7" rx="2"/>
-  
-  <!-- AI brain/network symbol -->
-  <circle cx="100" cy="110" r="20" fill="none" stroke="white" stroke-width="3"/>
-  <circle cx="100" cy="110" r="3" fill="white"/>
-  <circle cx="85" cy="105" r="2" fill="white"/>
-  <circle cx="115" cy="105" r="2" fill="white"/>
-  <circle cx="90" cy="120" r="2" fill="white"/>
-  <circle cx="110" cy="120" r="2" fill="white"/>
-  
-  <line x1="100" y1="110" x2="85" y2="105" stroke="white" stroke-width="1.5"/>
-  <line x1="100" y1="110" x2="115" y2="105" stroke="white" stroke-width="1.5"/>
-  <line x1="100" y1="110" x2="90" y2="120" stroke="white" stroke-width="1.5"/>
-  <line x1="100" y1="110" x2="110" y2="120" stroke="white" stroke-width="1.5"/>
+  <!-- RAG Symbol - Central Brain/Network -->
+  <g transform="translate(100, 100)">
+    <!-- Center Node (R) -->
+    <circle cx="0" cy="0" r="18" fill="white" opacity="0.9"/>
+    <text x="0" y="0" text-anchor="middle" dominant-baseline="middle" font-family="Arial, sans-serif" font-size="20" font-weight="bold" fill="black">R</text>
+    
+    <!-- Left Node (A) -->
+    <circle cx="-45" cy="0" r="15" fill="white" opacity="0.8"/>
+    <text x="-45" y="0" text-anchor="middle" dominant-baseline="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="black">A</text>
+    
+    <!-- Right Node (G) -->
+    <circle cx="45" cy="0" r="15" fill="white" opacity="0.8"/>
+    <text x="45" y="0" text-anchor="middle" dominant-baseline="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="black">G</text>
+    
+    <!-- Connection Lines -->
+    <line x1="0" y1="0" x2="-45" y2="0" stroke="white" stroke-width="2.5" opacity="0.6"/>
+    <line x1="0" y1="0" x2="45" y2="0" stroke="white" stroke-width="2.5" opacity="0.6"/>
+    
+    <!-- Top Nodes -->
+    <circle cx="0" cy="-40" r="8" fill="white" opacity="0.6"/>
+    <circle cx="-25" cy="-30" r="6" fill="white" opacity="0.5"/>
+    <circle cx="25" cy="-30" r="6" fill="white" opacity="0.5"/>
+    
+    <!-- Bottom Nodes -->
+    <circle cx="0" cy="40" r="8" fill="white" opacity="0.6"/>
+    <circle cx="-25" cy="30" r="6" fill="white" opacity="0.5"/>
+    <circle cx="25" cy="30" r="6" fill="white" opacity="0.5"/>
+    
+    <!-- Network Connections -->
+    <line x1="0" y1="0" x2="0" y2="-40" stroke="white" stroke-width="1.5" opacity="0.4"/>
+    <line x1="0" y1="0" x2="-25" y2="-30" stroke="white" stroke-width="1.5" opacity="0.4"/>
+    <line x1="0" y1="0" x2="25" y2="-30" stroke="white" stroke-width="1.5" opacity="0.4"/>
+    <line x1="0" y1="0" x2="0" y2="40" stroke="white" stroke-width="1.5" opacity="0.4"/>
+    <line x1="0" y1="0" x2="-25" y2="30" stroke="white" stroke-width="1.5" opacity="0.4"/>
+    <line x1="0" y1="0" x2="25" y2="30" stroke="white" stroke-width="1.5" opacity="0.4"/>
+    
+    <line x1="-45" y1="0" x2="-25" y2="-30" stroke="white" stroke-width="1.5" opacity="0.3"/>
+    <line x1="-45" y1="0" x2="-25" y2="30" stroke="white" stroke-width="1.5" opacity="0.3"/>
+    <line x1="45" y1="0" x2="25" y2="-30" stroke="white" stroke-width="1.5" opacity="0.3"/>
+    <line x1="45" y1="0" x2="25" y2="30" stroke="white" stroke-width="1.5" opacity="0.3"/>
+  </g>
 </svg>

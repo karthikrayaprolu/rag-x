@@ -31,13 +31,16 @@ export default function AuthPage() {
     setTimeout(() => {
       // Mock user_id and api_key generation
       const userId = 'usr_' + Math.random().toString(36).substring(2, 15);
-      const apiKey = 'rg_' + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-      
+      const apiKey =
+        'rg_' +
+        Math.random().toString(36).substring(2, 15) +
+        Math.random().toString(36).substring(2, 15);
+
       // Store in localStorage (in production, use proper auth)
       localStorage.setItem('user_id', userId);
       localStorage.setItem('api_key', apiKey);
       localStorage.setItem('user_email', formData.email);
-      
+
       setLoading(false);
       router.push('/dashboard');
     }, 1500);
@@ -51,26 +54,32 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen bg-black flex items-center justify-center px-4 pt-24 pb-16">
-      <div className="absolute inset-0 overflow-hidden">
+    <div className="min-h-screen bg-black flex items-center justify-center px-4 pt-24 pb-16 relative">
+      {/* Background blur shapes */}
+      <div className="absolute inset-0 overflow-hidden z-0 pointer-events-none">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-white/5 rounded-full blur-3xl"></div>
         <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-white/5 rounded-full blur-3xl"></div>
       </div>
 
-      <div className="auth-card relative max-w-md w-full glass rounded-3xl p-10 border border-white/10 shadow-2xl">
+      {/* Auth Card */}
+      <div className="auth-card relative max-w-md w-full bg-black/60 backdrop-blur-xl rounded-3xl p-10 border border-white/20 shadow-2xl z-10">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold mb-2">
-            <span className="gradient-accent">{isLogin ? 'Welcome Back' : 'Join RAGster'}</span>
+          <h1 className="text-4xl font-bold mb-2 text-white">
+            {isLogin ? 'Welcome Back' : 'Join RAGx'}
           </h1>
           <p className="text-gray-400">
-            {isLogin ? 'Login to access your RAG platform' : 'Create your custom RAG platform'}
+            {isLogin
+              ? 'Login to access your RAG platform'
+              : 'Create your custom RAG platform'}
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
           {!isLogin && (
             <div>
-              <label className="block text-gray-300 mb-2 font-medium text-sm">Full Name</label>
+              <label className="block text-gray-300 mb-2 font-medium text-sm">
+                Full Name
+              </label>
               <input
                 type="text"
                 name="name"
@@ -84,7 +93,9 @@ export default function AuthPage() {
           )}
 
           <div>
-            <label className="block text-gray-300 mb-2 font-medium text-sm">Email Address</label>
+            <label className="block text-gray-300 mb-2 font-medium text-sm">
+              Email Address
+            </label>
             <input
               type="email"
               name="email"
@@ -97,7 +108,9 @@ export default function AuthPage() {
           </div>
 
           <div>
-            <label className="block text-gray-300 mb-2 font-medium text-sm">Password</label>
+            <label className="block text-gray-300 mb-2 font-medium text-sm">
+              Password
+            </label>
             <input
               type="password"
               name="password"
@@ -112,7 +125,7 @@ export default function AuthPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-white text-black py-4 rounded-full font-bold text-lg hover:bg-gray-200 disabled:bg-gray-600 disabled:text-gray-400 disabled:cursor-not-allowed transition-all transform hover:scale-[1.02] shadow-lg hover:shadow-2xl"
+            className="w-full bg-white text-black py-4 rounded-full font-bold text-lg hover:bg-gray-200 disabled:bg-gray-600 disabled:text-gray-400 disabled:cursor-not-allowed transition-all transform hover:scale-105 shadow-lg hover:shadow-xl"
           >
             {loading ? (
               <span className="flex items-center justify-center gap-2">
@@ -134,19 +147,33 @@ export default function AuthPage() {
             className="text-gray-400 hover:text-white transition-colors text-sm"
           >
             {isLogin ? (
-              <span>Don't have an account? <span className="font-semibold underline">Register</span></span>
+              <span>
+                Don't have an account?{' '}
+                <span className="font-semibold underline">Register</span>
+              </span>
             ) : (
-              <span>Already have an account? <span className="font-semibold underline">Login</span></span>
+              <span>
+                Already have an account?{' '}
+                <span className="font-semibold underline">Login</span>
+              </span>
             )}
           </button>
         </div>
 
         {!isLogin && (
-          <div className="mt-6 p-4 glass border border-white/20 rounded-2xl">
+          <div className="mt-6 p-4 bg-white/10 border border-white/20 rounded-2xl">
             <div className="flex items-start gap-3">
               <span className="text-2xl">🔑</span>
               <p className="text-sm text-gray-300 leading-relaxed">
-                After registration, you'll receive a unique <code className="bg-white/10 px-2 py-1 rounded text-white font-mono text-xs">user_id</code> and <code className="bg-white/10 px-2 py-1 rounded text-white font-mono text-xs">api_key</code> to access your RAG platform!
+                After registration, you'll receive a unique{' '}
+                <code className="bg-white/10 px-2 py-1 rounded text-white font-mono text-xs">
+                  user_id
+                </code>{' '}
+                and{' '}
+                <code className="bg-white/10 px-2 py-1 rounded text-white font-mono text-xs">
+                  api_key
+                </code>{' '}
+                to access your RAG platform!
               </p>
             </div>
           </div>
