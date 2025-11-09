@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { motion } from 'framer-motion';
 // Import react-icons
 import {
   HiOutlineIdentification,
@@ -113,21 +114,54 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-black text-white pt-24 pb-16">
       {/* Background blur shapes */}
       <div className="absolute inset-0 overflow-hidden -z-10">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-white/5 rounded-full blur-3xl opacity-50"></div>
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-white/5 rounded-full blur-3xl opacity-50"></div>
+        <motion.div
+          className="absolute top-1/4 left-1/4 w-96 h-96 bg-white/5 rounded-full blur-3xl opacity-50"
+          animate={{
+            scale: [1, 1.2, 1],
+            opacity: [0.3, 0.5, 0.3],
+          }}
+          transition={{
+            duration: 8,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        />
+        <motion.div
+          className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-white/5 rounded-full blur-3xl opacity-50"
+          animate={{
+            scale: [1.2, 1, 1.2],
+            opacity: [0.5, 0.3, 0.5],
+          }}
+          transition={{
+            duration: 8,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        />
       </div>
 
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
-        <div className="mb-8">
+        <motion.div
+          className="mb-8"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
           <h1 className="text-4xl font-bold text-white mb-2">Dashboard</h1>
           <p className="text-gray-400">Welcome back, {userEmail}</p>
-        </div>
+        </motion.div>
 
         {/* API Credentials Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
           {/* User ID Card */}
-          <div className="bg-black/40 backdrop-blur-xl rounded-2xl p-6 border border-white/10">
+          <motion.div
+            className="bg-black/40 backdrop-blur-xl rounded-2xl p-6 border border-white/10"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            whileHover={{ scale: 1.02, borderColor: 'rgba(255, 255, 255, 0.2)' }}
+          >
             <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-3">
               <HiOutlineIdentification className="w-6 h-6 text-gray-400" />
               Your User ID
@@ -136,13 +170,15 @@ export default function DashboardPage() {
               <code className="flex-1 bg-black/50 text-gray-300 px-4 py-3 rounded-lg font-mono text-sm overflow-x-auto">
                 {userId}
               </code>
-              <button
+              <motion.button
                 onClick={() => copyToClipboard(userId, 'User ID')}
                 className={`px-4 py-2 rounded-lg transition-all text-sm font-medium flex items-center gap-2 ${
                   copiedKey === 'User ID'
                     ? 'bg-green-500/20 text-green-300' // Success state
                     : 'bg-white/10 hover:bg-white/20 text-white' // Normal state
                 }`}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
               >
                 {copiedKey === 'User ID' ? (
                   <FiCheck className="w-4 h-4" />
@@ -150,12 +186,18 @@ export default function DashboardPage() {
                   <FiCopy className="w-4 h-4" />
                 )}
                 {copiedKey === 'User ID' ? 'Copied' : 'Copy'}
-              </button>
+              </motion.button>
             </div>
-          </div>
+          </motion.div>
 
           {/* API Key Card */}
-          <div className="bg-black/40 backdrop-blur-xl rounded-2xl p-6 border border-white/10">
+          <motion.div
+            className="bg-black/40 backdrop-blur-xl rounded-2xl p-6 border border-white/10"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            whileHover={{ scale: 1.02, borderColor: 'rgba(255, 255, 255, 0.2)' }}
+          >
             <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-3">
               <HiOutlineKey className="w-6 h-6 text-gray-400" />
               Your API Key
@@ -164,13 +206,15 @@ export default function DashboardPage() {
               <code className="flex-1 bg-black/50 text-gray-300 px-4 py-3 rounded-lg font-mono text-sm overflow-x-auto">
                 {apiKey}
               </code>
-              <button
+              <motion.button
                 onClick={() => copyToClipboard(apiKey, 'API Key')}
                 className={`px-4 py-2 rounded-lg transition-all text-sm font-medium flex items-center gap-2 ${
                   copiedKey === 'API Key'
                     ? 'bg-green-500/20 text-green-300'
                     : 'bg-white/10 hover:bg-white/20 text-white'
                 }`}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
               >
                 {copiedKey === 'API Key' ? (
                   <FiCheck className="w-4 h-4" />
@@ -178,13 +222,19 @@ export default function DashboardPage() {
                   <FiCopy className="w-4 h-4" />
                 )}
                 {copiedKey === 'API Key' ? 'Copied' : 'Copy'}
-              </button>
+              </motion.button>
             </div>
-          </div>
+          </motion.div>
         </div>
 
         {/* API Endpoint Card */}
-        <div className="bg-black/40 backdrop-blur-xl rounded-2xl p-6 border border-white/10 mb-6">
+        <motion.div
+          className="bg-black/40 backdrop-blur-xl rounded-2xl p-6 border border-white/10 mb-6"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+          whileHover={{ scale: 1.01, borderColor: 'rgba(255, 255, 255, 0.2)' }}
+        >
           <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-3">
             <FiGlobe className="w-6 h-6 text-gray-400" />
             Your API Endpoint
@@ -194,13 +244,15 @@ export default function DashboardPage() {
               <code className="flex-1 bg-black/50 text-gray-300 px-4 py-3 rounded-lg font-mono text-sm overflow-x-auto">
                 {apiEndpoint}
               </code>
-              <button
+              <motion.button
                 onClick={() => copyToClipboard(apiEndpoint, 'API Endpoint')}
                 className={`px-4 py-2 rounded-lg transition-all text-sm font-medium flex items-center gap-2 ${
                   copiedKey === 'API Endpoint'
                     ? 'bg-green-500/20 text-green-300'
                     : 'bg-white/10 hover:bg-white/20 text-white'
                 }`}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
               >
                 {copiedKey === 'API Endpoint' ? (
                   <FiCheck className="w-4 h-4" />
@@ -208,11 +260,16 @@ export default function DashboardPage() {
                   <FiCopy className="w-4 h-4" />
                 )}
                 {copiedKey === 'API Endpoint' ? 'Copied' : 'Copy'}
-              </button>
+              </motion.button>
             </div>
           </div>
 
-          <div className="bg-black/30 rounded-lg p-4 text-sm">
+          <motion.div
+            className="bg-black/30 rounded-lg p-4 text-sm"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5 }}
+          >
             <p className="text-gray-300 mb-2 font-semibold">
               Example cURL Request:
             </p>
@@ -222,57 +279,113 @@ export default function DashboardPage() {
   -H "Content-Type: application/json" \\
   -d '{"question": "What is our return policy?"}'`}
             </code>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
 
         {/* Statistics Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-          <div className="bg-black/40 backdrop-blur-xl rounded-2xl p-6 border border-white/10">
+          <motion.div
+            className="bg-black/40 backdrop-blur-xl rounded-2xl p-6 border border-white/10"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+            whileHover={{ scale: 1.05, y: -5 }}
+          >
             <FiBarChart2 className="w-8 h-8 text-gray-400 mb-4" />
-            <div className="text-3xl font-bold text-white mb-1">
+            <motion.div
+              className="text-3xl font-bold text-white mb-1"
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ duration: 0.5, delay: 0.6, type: "spring" }}
+            >
               {stats.totalQueries}
-            </div>
+            </motion.div>
             <div className="text-gray-300 text-sm">Total Queries</div>
-          </div>
+          </motion.div>
 
-          <div className="bg-black/40 backdrop-blur-xl rounded-2xl p-6 border border-white/10">
+          <motion.div
+            className="bg-black/40 backdrop-blur-xl rounded-2xl p-6 border border-white/10"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.5 }}
+            whileHover={{ scale: 1.05, y: -5 }}
+          >
             <FiFileText className="w-8 h-8 text-gray-400 mb-4" />
-            <div className="text-3xl font-bold text-white mb-1">
+            <motion.div
+              className="text-3xl font-bold text-white mb-1"
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ duration: 0.5, delay: 0.7, type: "spring" }}
+            >
               {stats.totalDocuments}
-            </div>
+            </motion.div>
             <div className="text-gray-300 text-sm">Documents</div>
-          </div>
+          </motion.div>
 
-          <div className="bg-black/40 backdrop-blur-xl rounded-2xl p-6 border border-white/10">
+          <motion.div
+            className="bg-black/40 backdrop-blur-xl rounded-2xl p-6 border border-white/10"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.6 }}
+            whileHover={{ scale: 1.05, y: -5 }}
+          >
             <PiBrain className="w-8 h-8 text-gray-400 mb-4" />
-            <div className="text-3xl font-bold text-white mb-1">
+            <motion.div
+              className="text-3xl font-bold text-white mb-1"
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ duration: 0.5, delay: 0.8, type: "spring" }}
+            >
               {stats.totalEmbeddings}
-            </div>
+            </motion.div>
             <div className="text-gray-300 text-sm">Embeddings</div>
-          </div>
+          </motion.div>
 
-          <div className="bg-black/40 backdrop-blur-xl rounded-2xl p-6 border border-white/10">
+          <motion.div
+            className="bg-black/40 backdrop-blur-xl rounded-2xl p-6 border border-white/10"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.7 }}
+            whileHover={{ scale: 1.05, y: -5 }}
+          >
             <FiZap className="w-8 h-8 text-gray-400 mb-4" />
-            <div className="text-lg font-bold text-green-400 mb-1">Active</div>
+            <motion.div
+              className="text-lg font-bold text-green-400 mb-1"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5, delay: 0.9 }}
+            >
+              Active
+            </motion.div>
             <div className="text-gray-300 text-sm">System Status</div>
-          </div>
+          </motion.div>
         </div>
 
         {/* Data Sources Table */}
-        <div className="bg-black/40 backdrop-blur-xl rounded-2xl p-6 border border-white/10 mb-6">
+        <motion.div
+          className="bg-black/40 backdrop-blur-xl rounded-2xl p-6 border border-white/10 mb-6"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.8 }}
+        >
           <div className="flex flex-col md:flex-row justify-between md:items-center mb-4 gap-4">
             <h2 className="text-2xl font-semibold text-white flex items-center gap-3">
               <FiDatabase className="w-6 h-6" />
               Connected Data Sources
             </h2>
-            <Link
-              href="/upload"
-              // Styled to match main CTA
-              className="bg-white text-black hover:bg-gray-200 font-bold px-5 py-2.5 rounded-full transition-colors text-sm flex items-center justify-center gap-2"
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
-              <FiPlus className="w-4 h-4" />
-              Add New Source
-            </Link>
+              <Link
+                href="/upload"
+                // Styled to match main CTA
+                className="bg-white text-black hover:bg-gray-200 font-bold px-5 py-2.5 rounded-full transition-colors text-sm flex items-center justify-center gap-2"
+              >
+                <FiPlus className="w-4 h-4" />
+                Add New Source
+              </Link>
+            </motion.div>
           </div>
 
           <div className="overflow-x-auto">
@@ -289,69 +402,112 @@ export default function DashboardPage() {
               </thead>
               <tbody>
                 {dataSources.map((source, index) => (
-                  <tr
+                  <motion.tr
                     key={index}
                     className="border-b border-white/10 hover:bg-white/5"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.3, delay: 0.9 + index * 0.1 }}
+                    whileHover={{ backgroundColor: 'rgba(255, 255, 255, 0.08)' }}
                   >
                     <td className="text-white py-3 px-4">{source.name}</td>
                     <td className="text-gray-300 py-3 px-4">{source.type}</td>
                     <td className="py-3 px-4">
-                      <span
+                      <motion.span
                         className={`px-3 py-1 rounded-full text-xs ${
                           source.status === 'Processed' ||
                           source.status === 'Connected'
                             ? 'bg-green-500/20 text-green-300'
                             : 'bg-yellow-500/20 text-yellow-300'
                         }`}
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ duration: 0.3, delay: 1 + index * 0.1 }}
                       >
                         {source.status}
-                      </span>
+                      </motion.span>
                     </td>
                     <td className="text-gray-300 py-3 px-4">{source.date}</td>
-                  </tr>
+                  </motion.tr>
                 ))}
               </tbody>
             </table>
           </div>
-        </div>
+        </motion.div>
 
         {/* Quick Actions */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Link
-            href="/upload"
-            className="bg-black/40 backdrop-blur-xl rounded-2xl p-6 border border-white/10 hover:border-purple-500/50 transition-all group"
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 1.2 }}
+            whileHover={{ scale: 1.05, y: -5 }}
           >
-            <FiUpload className="w-10 h-10 text-gray-400 group-hover:text-purple-400 transition-colors mb-4" />
-            <h3 className="text-xl font-semibold text-white mb-2">
-              Upload Data
-            </h3>
-            <p className="text-gray-300 text-sm">
-              Add new documents or connect databases
-            </p>
-          </Link>
+            <Link
+              href="/upload"
+              className="block bg-black/40 backdrop-blur-xl rounded-2xl p-6 border border-white/10 hover:border-purple-500/50 transition-all group"
+            >
+              <motion.div
+                whileHover={{ rotate: [0, -10, 10, -10, 0] }}
+                transition={{ duration: 0.5 }}
+              >
+                <FiUpload className="w-10 h-10 text-gray-400 group-hover:text-purple-400 transition-colors mb-4" />
+              </motion.div>
+              <h3 className="text-xl font-semibold text-white mb-2">
+                Upload Data
+              </h3>
+              <p className="text-gray-300 text-sm">
+                Add new documents or connect databases
+              </p>
+            </Link>
+          </motion.div>
 
-          <Link
-            href="/chat"
-            className="bg-black/40 backdrop-blur-xl rounded-2xl p-6 border border-white/10 hover:border-purple-500/50 transition-all group"
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 1.3 }}
+            whileHover={{ scale: 1.05, y: -5 }}
           >
-            <FiMessageSquare className="w-10 h-10 text-gray-400 group-hover:text-purple-400 transition-colors mb-4" />
-            <h3 className="text-xl font-semibold text-white mb-2">
-              Ask Questions
-            </h3>
-            <p className="text-gray-300 text-sm">
-              Chat with your data using AI
-            </p>
-          </Link>
+            <Link
+              href="/chat"
+              className="block bg-black/40 backdrop-blur-xl rounded-2xl p-6 border border-white/10 hover:border-purple-500/50 transition-all group"
+            >
+              <motion.div
+                whileHover={{ rotate: [0, -10, 10, -10, 0] }}
+                transition={{ duration: 0.5 }}
+              >
+                <FiMessageSquare className="w-10 h-10 text-gray-400 group-hover:text-purple-400 transition-colors mb-4" />
+              </motion.div>
+              <h3 className="text-xl font-semibold text-white mb-2">
+                Ask Questions
+              </h3>
+              <p className="text-gray-300 text-sm">
+                Chat with your data using AI
+              </p>
+            </Link>
+          </motion.div>
 
-          <div className="bg-black/40 backdrop-blur-xl rounded-2xl p-6 border border-white/10 hover:border-purple-500/50 transition-all group cursor-pointer">
-            <FiBookOpen className="w-10 h-10 text-gray-400 group-hover:text-purple-400 transition-colors mb-4" />
-            <h3 className="text-xl font-semibold text-white mb-2">
-              API Documentation
-            </h3>
-            <p className="text-gray-300 text-sm">
-              Learn how to integrate the API
-            </p>
-          </div>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 1.4 }}
+            whileHover={{ scale: 1.05, y: -5 }}
+          >
+            <div className="bg-black/40 backdrop-blur-xl rounded-2xl p-6 border border-white/10 hover:border-purple-500/50 transition-all group cursor-pointer">
+              <motion.div
+                whileHover={{ rotate: [0, -10, 10, -10, 0] }}
+                transition={{ duration: 0.5 }}
+              >
+                <FiBookOpen className="w-10 h-10 text-gray-400 group-hover:text-purple-400 transition-colors mb-4" />
+              </motion.div>
+              <h3 className="text-xl font-semibold text-white mb-2">
+                API Documentation
+              </h3>
+              <p className="text-gray-300 text-sm">
+                Learn how to integrate the API
+              </p>
+            </div>
+          </motion.div>
         </div>
       </div>
     </div>
