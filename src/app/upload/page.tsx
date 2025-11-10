@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import UploadBox from '../../components/UploadBox';
+import { motion } from 'framer-motion';
 // Import react-icons
 import {
   FiUpload,

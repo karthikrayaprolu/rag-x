@@ -448,8 +448,8 @@ export default function DashboardPage() {
               className="block bg-black/40 backdrop-blur-xl rounded-2xl p-6 border border-white/10 hover:border-purple-500/50 transition-all group"
             >
               <motion.div
-                whileHover={{ rotate: [0, -10, 10, -10, 0] }}
-                transition={{ duration: 0.5 }}
+                // whileHover={{ rotate: [0, -10, 10, -10, 0] }}
+                // transition={{ duration: 0.5 }}
               >
                 <FiUpload className="w-10 h-10 text-gray-400 group-hover:text-purple-400 transition-colors mb-4" />
               </motion.div>
@@ -473,8 +473,8 @@ export default function DashboardPage() {
               className="block bg-black/40 backdrop-blur-xl rounded-2xl p-6 border border-white/10 hover:border-purple-500/50 transition-all group"
             >
               <motion.div
-                whileHover={{ rotate: [0, -10, 10, -10, 0] }}
-                transition={{ duration: 0.5 }}
+                // whileHover={{ rotate: [0, -10, 10, -10, 0] }}
+                // transition={{ duration: 0.5 }}
               >
                 <FiMessageSquare className="w-10 h-10 text-gray-400 group-hover:text-purple-400 transition-colors mb-4" />
               </motion.div>
@@ -495,8 +495,8 @@ export default function DashboardPage() {
           >
             <div className="bg-black/40 backdrop-blur-xl rounded-2xl p-6 border border-white/10 hover:border-purple-500/50 transition-all group cursor-pointer">
               <motion.div
-                whileHover={{ rotate: [0, -10, 10, -10, 0] }}
-                transition={{ duration: 0.5 }}
+                // whileHover={{ rotate: [0, -10, 10, -10, 0] }}
+                // transition={{ duration: 0.5 }}
               >
                 <FiBookOpen className="w-10 h-10 text-gray-400 group-hover:text-purple-400 transition-colors mb-4" />
               </motion.div>
