@@ -4,10 +4,10 @@ A modern Next.js application with authentication, chat, and file upload features
 
 ## Features
 
-- 🔐 **Authentication** - User login/signup with Firebase
-- 💬 **Chat** - Interactive chat interface
-- 📤 **Upload** - File upload functionality
-- 📊 **Dashboard** - User dashboard
+-  **Authentication** - User login/signup with Firebase
+-  **Chat** - Interactive chat interface
+-  **Upload** - File upload functionality
+-  **Dashboard** - User dashboard
 
 ## Tech Stack
 
