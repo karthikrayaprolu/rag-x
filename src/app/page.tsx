@@ -2,10 +2,23 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import SplineRobot from '@/components/SplineRobot';
+import dynamic from 'next/dynamic';
 import { motion } from 'framer-motion';
+import { useAuth } from '@/contexts/AuthContext';
+
+// Dynamically import SplineRobot to prevent SSR issues and improve initial load
+const SplineRobot = dynamic(() => import('@/components/SplineRobot'), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-[400px] md:h-[500px] flex items-center justify-center bg-gray-900/30 rounded-lg">
+      <div className="animate-pulse text-gray-500">Loading 3D viewer...</div>
+    </div>
+  ),
+});
 
 export default function Home() {
+  const { user, loading } = useAuth();
+
   return (
     <div className="min-h-screen bg-black text-white">
       <main className="container mx-auto px-4" data-scroll-section>
@@ -51,18 +64,42 @@ export default function Home() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.6 }}
             >
-              <Link 
-                href="/auth"
-                className="bg-white text-black px-8 py-4 rounded-full font-semibold text-lg transition-all hover:bg-gray-200 transform hover:scale-105 text-center shadow-lg hover:shadow-xl"
-              >
-                Get Started
-              </Link>
-              <Link 
-                href="/auth"
-                className="glass border border-white/20 text-white px-8 py-4 rounded-full font-semibold text-lg transition-all hover:bg-white/10 transform hover:scale-105 text-center"
-              >
-                Login
-              </Link>
+              {loading ? (
+                // Show loading state
+                <div className="px-8 py-4 text-gray-400">Loading...</div>
+              ) : user ? (
+                // User is logged in - show dashboard button
+                <>
+                  <Link 
+                    href="/dashboard"
+                    className="bg-white text-black px-8 py-4 rounded-full font-semibold text-lg transition-all hover:bg-gray-200 transform hover:scale-105 text-center shadow-lg hover:shadow-xl"
+                  >
+                    Go to Dashboard
+                  </Link>
+                  <Link 
+                    href="/chat"
+                    className="glass border border-white/20 text-white px-8 py-4 rounded-full font-semibold text-lg transition-all hover:bg-white/10 transform hover:scale-105 text-center"
+                  >
+                    Start Chatting
+                  </Link>
+                </>
+              ) : (
+                // User is not logged in - show auth buttons
+                <>
+                  <Link 
+                    href="/auth"
+                    className="bg-white text-black px-8 py-4 rounded-full font-semibold text-lg transition-all hover:bg-gray-200 transform hover:scale-105 text-center shadow-lg hover:shadow-xl"
+                  >
+                    Get Started
+                  </Link>
+                  <Link 
+                    href="/auth"
+                    className="glass border border-white/20 text-white px-8 py-4 rounded-full font-semibold text-lg transition-all hover:bg-white/10 transform hover:scale-105 text-center"
+                  >
+                    Login
+                  </Link>
+                </>
+              )}
             </motion.div>
           </div>
 

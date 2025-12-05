@@ -3,6 +3,7 @@ fastapi
 uvicorn[standard]
 python-multipart
 pydantic
+pydantic-settings
 python-dotenv
 
 # --- AI & Vector Database (RAG) ---
@@ -12,7 +13,9 @@ langchain
 langchain-openai
 langchain-pinecone
 langchain-community
+langchain-text-splitters
 tiktoken
+sentence-transformers
 
 # --- Document Parsing (File Uploads) ---
 pypdf

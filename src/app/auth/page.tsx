@@ -49,7 +49,8 @@ export default function AuthPage() {
 
     try {
       await loginWithGoogle();
-      // Redirect happens automatically, no need to manually redirect here
+      // Redirect to dashboard after successful Google login
+      router.push('/dashboard');
     } catch (err: any) {
       setError(err.message || 'Failed to sign in with Google');
       setLoading(false);

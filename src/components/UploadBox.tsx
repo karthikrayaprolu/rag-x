@@ -1,67 +1,85 @@
 'use client';
 
 import { useState } from 'react';
+import { uploadDocument, UploadResponse } from '@/lib/api';
 
 interface UploadBoxProps {
   onProcessingStageChange?: (stage: string | null) => void;
+  onUploadComplete?: (result: UploadResponse) => void;
 }
 
-export default function UploadBox({ onProcessingStageChange }: UploadBoxProps) {
+export default function UploadBox({ onProcessingStageChange, onUploadComplete }: UploadBoxProps) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [selectedFileType, setSelectedFileType] = useState<string>('');
   const [dbUrl, setDbUrl] = useState('');
   const [dbType, setDbType] = useState('postgresql');
   const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       setSelectedFile(file);
       setSelectedFileType(file.type || file.name.split('.').pop() || 'unknown');
+      setError(null);
+      setSuccess(null);
     }
-  };
-
-  const simulateProcessing = async (fileName: string) => {
-    const stages = [
-      `📄 Extracting text from ${fileName}...`,
-      `✂️ Chunking text into semantic segments...`,
-      `🧠 Generating embeddings...`,
-      `💾 Storing in vector database...`,
-      `✅ Processing complete!`
-    ];
-
-    for (const stage of stages) {
-      onProcessingStageChange?.(stage);
-      await new Promise(resolve => setTimeout(resolve, 1500));
-    }
-    
-    onProcessingStageChange?.(null);
   };
 
   const handleFileUpload = async () => {
     if (!selectedFile) return;
     
     setUploading(true);
-    await simulateProcessing(selectedFile.name);
-    alert(`File "${selectedFile.name}" processed and added to your knowledge base!`);
-    setSelectedFile(null);
-    setUploading(false);
+    setError(null);
+    setSuccess(null);
+    
+    try {
+      // Show processing stages
+      onProcessingStageChange?.(`📄 Uploading ${selectedFile.name}...`);
+      
+      const result = await uploadDocument(selectedFile);
+      
+      onProcessingStageChange?.(`✂️ Created ${result.chunks_created} chunks...`);
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      onProcessingStageChange?.(`💾 Stored ${result.vectors_stored} vectors in Pinecone...`);
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      onProcessingStageChange?.(`✅ Processing complete!`);
+      
+      setSuccess(`Successfully processed "${selectedFile.name}" - ${result.chunks_created} chunks, ${result.vectors_stored} vectors stored`);
+      onUploadComplete?.(result);
+      setSelectedFile(null);
+      
+      // Clear the file input
+      const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+      if (fileInput) fileInput.value = '';
+      
+    } catch (err: any) {
+      console.error('Upload error:', err);
+      setError(err.message || 'Failed to upload document');
+      onProcessingStageChange?.(`❌ Error: ${err.message}`);
+    } finally {
+      setUploading(false);
+      setTimeout(() => onProcessingStageChange?.(null), 2000);
+    }
   };
 
   const handleDbConnect = async () => {
     if (!dbUrl) return;
     
     setUploading(true);
+    setError(null);
+    
+    // Database connection is a future feature
     onProcessingStageChange?.(`🔗 Connecting to ${dbType.toUpperCase()} database...`);
     await new Promise(resolve => setTimeout(resolve, 1500));
     
-    onProcessingStageChange?.(`📊 Analyzing database schema...`);
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    onProcessingStageChange?.(`✅ Database connected successfully!`);
+    onProcessingStageChange?.(`⚠️ Database connection coming soon!`);
     await new Promise(resolve => setTimeout(resolve, 1000));
     
-    alert(`Connected to ${dbType.toUpperCase()} database successfully!`);
+    setError('Database connection feature coming soon!');
     setDbUrl('');
     setUploading(false);
     onProcessingStageChange?.(null);
@@ -69,6 +87,18 @@ export default function UploadBox({ onProcessingStageChange }: UploadBoxProps) {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Status Messages */}
+      {error && (
+        <div className="lg:col-span-2 p-4 bg-red-500/10 border border-red-500/30 rounded-lg text-red-300">
+          ❌ {error}
+        </div>
+      )}
+      {success && (
+        <div className="lg:col-span-2 p-4 bg-green-500/10 border border-green-500/30 rounded-lg text-green-300">
+          ✅ {success}
+        </div>
+      )}
+      
       {/* File Upload Section */}
       <div className="bg-white/10 backdrop-blur-md rounded-lg p-6 border border-white/20">
         <h2 className="text-2xl font-semibold text-white mb-4">📄 Upload Documents</h2>

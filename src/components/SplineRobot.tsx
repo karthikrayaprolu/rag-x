@@ -1,81 +1,126 @@
 'use client';
 
-
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 
 export default function SplineRobot() {
-  const viewerRef = useRef<HTMLDivElement>(null);
-  const scriptLoaded = useRef(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const viewerRef = useRef<HTMLElement | null>(null);
+  const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
 
-  // Error boundary logic
-  function ErrorBoundary({ children }: { children: React.ReactNode }) {
-    const [error, setError] = useState<Error | null>(null);
-    // Only works for errors in children components
-    // For errors in external scripts, fallback to try/catch in effect
-    // This is a simple boundary for runtime errors
-    // eslint-disable-next-line react/display-name
-    return error ? (
-      <div className="flex flex-col items-center justify-center h-full text-red-500 bg-red-50 rounded-lg p-4">
-        <span className="text-lg font-semibold mb-2">3D Viewer failed to load</span>
-        <span className="text-sm">Please try refreshing the page or check your network connection.</span>
-      </div>
-    ) : (
-      <ErrorCatcher onError={setError}>{children}</ErrorCatcher>
-    );
-  }
-
-  // Helper component to catch errors in children
-  function ErrorCatcher({ children, onError }: { children: React.ReactNode; onError: (e: Error) => void }) {
-    try {
-      return <>{children}</>;
-    } catch (e: any) {
-      onError(e);
-      return null;
-    }
-  }
-
+  // Use Intersection Observer for lazy loading
   useEffect(() => {
-    if (!scriptLoaded.current) {
-      const script = document.createElement('script');
-      script.type = 'module';
-      script.src = 'https://unpkg.com/@splinetool/viewer@1.11.6/build/spline-viewer.js';
-      script.onerror = () => setHasError(true);
-      document.head.appendChild(script);
-      scriptLoaded.current = true;
+    const container = containerRef.current;
+    if (!container) return;
 
-      script.onload = () => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, []);
+
+  // Load Spline viewer only when visible
+  useEffect(() => {
+    if (!isVisible || isLoaded) return;
+
+    const container = containerRef.current;
+    if (!container) return;
+
+    // Check if container has valid dimensions
+    const rect = container.getBoundingClientRect();
+    if (rect.width < 10 || rect.height < 10) {
+      // Wait for proper dimensions
+      const resizeObserver = new ResizeObserver((entries) => {
+        const entry = entries[0];
+        if (entry.contentRect.width > 10 && entry.contentRect.height > 10) {
+          resizeObserver.disconnect();
+          loadSplineViewer();
+        }
+      });
+      resizeObserver.observe(container);
+      return () => resizeObserver.disconnect();
+    }
+
+    loadSplineViewer();
+
+    function loadSplineViewer() {
+      // Check if script already exists
+      let script = document.querySelector(
+        'script[src*="spline-viewer"]'
+      ) as HTMLScriptElement;
+
+      const initViewer = () => {
         try {
-          if (viewerRef.current) {
-            // Remove any previous viewer if reloading
-            viewerRef.current.innerHTML = '';
-            const viewer = document.createElement('spline-viewer');
-            viewer.setAttribute('url', 'https://prod.spline.design/0LsgVd1AfB9ZbPti/scene.splinecode');
-            viewerRef.current.appendChild(viewer);
+          if (container && !viewerRef.current) {
+            const viewer = document.createElement('spline-viewer') as HTMLElement;
+            viewer.setAttribute(
+              'url',
+              'https://prod.spline.design/0LsgVd1AfB9ZbPti/scene.splinecode'
+            );
+            viewer.style.width = '100%';
+            viewer.style.height = '100%';
+            container.appendChild(viewer);
+            viewerRef.current = viewer;
+            setIsLoaded(true);
           }
         } catch (e) {
+          console.error('Spline viewer error:', e);
           setHasError(true);
         }
       };
+
+      if (script) {
+        // Script already loaded
+        initViewer();
+      } else {
+        script = document.createElement('script');
+        script.type = 'module';
+        script.src =
+          'https://unpkg.com/@splinetool/viewer@1.11.6/build/spline-viewer.js';
+        script.onload = initViewer;
+        script.onerror = () => setHasError(true);
+        document.head.appendChild(script);
+      }
     }
-  }, []);
+
+    // Cleanup
+    return () => {
+      if (viewerRef.current && container?.contains(viewerRef.current)) {
+        container.removeChild(viewerRef.current);
+        viewerRef.current = null;
+      }
+    };
+  }, [isVisible, isLoaded]);
 
   if (hasError) {
     return (
-      <div className="flex flex-col items-center justify-center w-full h-[500px] md:h-[650px] lg:h-[700px] rounded-lg bg-red-50 text-red-500">
-        <span className="text-lg font-semibold mb-2">3D Viewer failed to load</span>
-        <span className="text-sm">Please try refreshing the page or check your network connection.</span>
+      <div className="flex flex-col items-center justify-center w-full h-[400px] md:h-[500px] rounded-lg bg-gray-900/50 text-gray-400 border border-white/10">
+        <span className="text-lg font-semibold mb-2">3D Viewer unavailable</span>
+        <span className="text-sm">Please refresh the page to try again.</span>
       </div>
     );
   }
 
   return (
-    <ErrorBoundary>
-      <div
-        ref={viewerRef}
-        className="w-full h-[500px] md:h-[650px] lg:h-[700px] rounded-lg"
-        style={{ minWidth: '100%' }}
-      />
-    </ErrorBoundary>
+    <div
+      ref={containerRef}
+      className="w-full h-[400px] md:h-[500px] lg:h-[550px] rounded-lg overflow-hidden"
+      style={{ minWidth: '200px', minHeight: '300px' }}
+    >
+      {!isLoaded && isVisible && (
+        <div className="flex items-center justify-center w-full h-full bg-gray-900/30">
+          <div className="animate-pulse text-gray-500">Loading 3D viewer...</div>
+        </div>
+      )}
+    </div>
   );
 }

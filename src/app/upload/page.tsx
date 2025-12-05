@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import UploadBox from '../../components/UploadBox';
 import { motion } from 'framer-motion';
 // Import react-icons
@@ -12,9 +13,36 @@ import {
   FiDatabase,
 } from 'react-icons/fi';
 import { PiBrain } from 'react-icons/pi';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function UploadPage() {
+  const { user, loading: authLoading } = useAuth();
+  const router = useRouter();
   const [processingStage, setProcessingStage] = useState<string | null>(null);
+
+  // Auth guard - redirect if not logged in
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.push('/auth');
+    }
+  }, [user, authLoading, router]);
+
+  // Show loading while checking auth
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-black text-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin w-8 h-8 border-2 border-white border-t-transparent rounded-full mx-auto mb-4"></div>
+          <p className="text-gray-400">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Redirect if not logged in (handled by useEffect, but prevent flash)
+  if (!user) {
+    return null;
+  }
 
   return (
     // Updated background to match theme

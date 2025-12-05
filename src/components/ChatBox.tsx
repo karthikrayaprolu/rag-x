@@ -5,25 +5,29 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { FiSend, FiUser, FiMenu, FiPlus } from 'react-icons/fi';
 import { PiBrain } from 'react-icons/pi';
 import Link from 'next/link';
+import { chatQuery, chatStream, ChatSource } from '@/lib/api';
+import MarkdownRenderer from './MarkdownRenderer';
 
 interface Message {
   id: number;
   text: string;
   sender: 'user' | 'bot';
   timestamp: Date;
+  sources?: ChatSource[];
 }
 
 export default function ChatBox() {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: 1,
-      text: "Hello! I'm your RAG assistant. I can help you find information from your uploaded documents and connected databases. What would you like to know?",
+      text: "Hello! I'm your RAG assistant. I can help you find information from your uploaded documents. Upload some documents first, then ask me anything about them!",
       sender: 'bot',
       timestamp: new Date(),
     },
   ]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [streamingText, setStreamingText] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -33,7 +37,7 @@ export default function ChatBox() {
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
+  }, [messages, streamingText]);
 
   // Auto-resize textarea
   useEffect(() => {
@@ -46,28 +50,68 @@ export default function ChatBox() {
   const handleSend = async () => {
     if (!input.trim() || isTyping) return;
 
+    const userQuery = input.trim();
     const userMessage: Message = {
       id: Date.now(),
-      text: input.trim(),
+      text: userQuery,
       sender: 'user',
       timestamp: new Date(),
     };
 
-    setMessages([...messages, userMessage]);
+    setMessages(prev => [...prev, userMessage]);
     setInput('');
     setIsTyping(true);
+    setStreamingText('');
 
-    // Simulate bot response with typing delay
-    setTimeout(() => {
+    try {
+      // Use streaming for real-time response
+      let fullResponse = '';
+      
+      for await (const chunk of chatStream(userQuery)) {
+        fullResponse += chunk;
+        setStreamingText(fullResponse);
+      }
+
+      // After streaming completes, add the full message
       const botMessage: Message = {
         id: Date.now() + 1,
-        text: `Based on your question about "${input.trim()}", I've searched through your documents and databases. This is a demo response.\n\nIn production, I would:\n• Search your vector database for relevant context\n• Retrieve the most relevant document chunks\n• Generate a contextual answer using the retrieved information\n• Provide sources and citations\n\nYour RAG system is ready to provide intelligent answers!`,
+        text: fullResponse || "I couldn't find relevant information in your documents. Please make sure you've uploaded some documents first.",
         sender: 'bot',
         timestamp: new Date(),
       };
-      setMessages((prev) => [...prev, botMessage]);
+      
+      setMessages(prev => [...prev, botMessage]);
+      setStreamingText('');
+      
+    } catch (error: any) {
+      console.error('Chat error:', error);
+      
+      // Fallback to non-streaming if stream fails
+      try {
+        const response = await chatQuery(userQuery);
+        
+        const botMessage: Message = {
+          id: Date.now() + 1,
+          text: response.answer,
+          sender: 'bot',
+          timestamp: new Date(),
+          sources: response.sources,
+        };
+        
+        setMessages(prev => [...prev, botMessage]);
+      } catch (fallbackError: any) {
+        const errorMessage: Message = {
+          id: Date.now() + 1,
+          text: `Sorry, I encountered an error: ${fallbackError.message}. Please make sure the backend server is running and you have uploaded some documents.`,
+          sender: 'bot',
+          timestamp: new Date(),
+        };
+        setMessages(prev => [...prev, errorMessage]);
+      }
+    } finally {
       setIsTyping(false);
-    }, 2000);
+      setStreamingText('');
+    }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -80,7 +124,7 @@ export default function ChatBox() {
   const suggestedQuestions = [
     "What documents have I uploaded?",
     "Summarize the main points",
-    "How does this system work?",
+    "What is this document about?",
   ];
 
   return (
@@ -160,7 +204,11 @@ export default function ChatBox() {
                         : 'bg-white/5 text-white border border-white/10'
                     }`}
                   >
-                    <p className="whitespace-pre-wrap leading-relaxed">{message.text}</p>
+                    {message.sender === 'bot' ? (
+                      <MarkdownRenderer content={message.text} className="leading-relaxed" />
+                    ) : (
+                      <p className="whitespace-pre-wrap leading-relaxed">{message.text}</p>
+                    )}
                   </div>
                   <div className="mt-1 text-xs text-gray-500 px-2">
                     {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -170,8 +218,8 @@ export default function ChatBox() {
             ))}
           </AnimatePresence>
 
-          {/* Typing Indicator */}
-          {isTyping && (
+          {/* Typing Indicator / Streaming Response */}
+          {(isTyping || streamingText) && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -181,24 +229,31 @@ export default function ChatBox() {
                 <PiBrain className="w-6 h-6 text-white" />
               </div>
               <div className="flex-1">
-                <div className="inline-block bg-white/5 border border-white/10 rounded-2xl px-5 py-3">
-                  <div className="flex gap-2">
-                    <motion.div
-                      className="w-2 h-2 bg-gray-400 rounded-full"
-                      animate={{ y: [0, -8, 0] }}
-                      transition={{ duration: 0.6, repeat: Infinity, repeatDelay: 0 }}
-                    />
-                    <motion.div
-                      className="w-2 h-2 bg-gray-400 rounded-full"
-                      animate={{ y: [0, -8, 0] }}
-                      transition={{ duration: 0.6, repeat: Infinity, repeatDelay: 0, delay: 0.2 }}
-                    />
-                    <motion.div
-                      className="w-2 h-2 bg-gray-400 rounded-full"
-                      animate={{ y: [0, -8, 0] }}
-                      transition={{ duration: 0.6, repeat: Infinity, repeatDelay: 0, delay: 0.4 }}
-                    />
-                  </div>
+                <div className="inline-block bg-white/5 border border-white/10 rounded-2xl px-5 py-3 max-w-full md:max-w-[85%]">
+                  {streamingText ? (
+                    <div className="leading-relaxed text-white">
+                      <MarkdownRenderer content={streamingText} />
+                      <span className="animate-pulse text-purple-400">▊</span>
+                    </div>
+                  ) : (
+                    <div className="flex gap-2">
+                      <motion.div
+                        className="w-2 h-2 bg-gray-400 rounded-full"
+                        animate={{ y: [0, -8, 0] }}
+                        transition={{ duration: 0.6, repeat: Infinity, repeatDelay: 0 }}
+                      />
+                      <motion.div
+                        className="w-2 h-2 bg-gray-400 rounded-full"
+                        animate={{ y: [0, -8, 0] }}
+                        transition={{ duration: 0.6, repeat: Infinity, repeatDelay: 0, delay: 0.2 }}
+                      />
+                      <motion.div
+                        className="w-2 h-2 bg-gray-400 rounded-full"
+                        animate={{ y: [0, -8, 0] }}
+                        transition={{ duration: 0.6, repeat: Infinity, repeatDelay: 0, delay: 0.4 }}
+                      />
+                    </div>
+                  )}
                 </div>
               </div>
             </motion.div>
