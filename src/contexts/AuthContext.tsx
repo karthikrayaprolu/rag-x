@@ -35,10 +35,10 @@ interface UserProfile {
 const AuthContext = createContext<AuthContextType>({
   user: null,
   loading: true,
-  signup: async () => {},
-  login: async () => {},
-  loginWithGoogle: async () => {},
-  logout: async () => {},
+  signup: async () => { },
+  login: async () => { },
+  loginWithGoogle: async () => { },
+  logout: async () => { },
   userProfile: null,
 });
 
@@ -52,14 +52,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setUser(user);
-      
+
       if (user) {
         try {
           // Fetch user profile from Firestore
           const userDoc = await getDoc(doc(db, 'users', user.uid));
           if (userDoc.exists()) {
             setUserProfile(userDoc.data() as UserProfile);
-            
+
             // Store in localStorage for quick access
             localStorage.setItem('user_id', userDoc.data().userId);
             localStorage.setItem('api_key', userDoc.data().apiKey);
@@ -74,6 +74,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         } catch (error) {
           console.error('Error fetching user profile:', error);
           // Fallback to Firebase user data if Firestore fails
+          const fallbackProfile: UserProfile = {
+            userId: user.uid,
+            apiKey: 'offline_mode',
+            email: user.email || '',
+            name: user.displayName || 'User',
+            createdAt: new Date().toISOString(),
+          };
+          setUserProfile(fallbackProfile);
+
           localStorage.setItem('user_id', user.uid);
           localStorage.setItem('user_email', user.email || '');
           localStorage.setItem('firebase_uid', user.uid);
@@ -85,7 +94,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         localStorage.removeItem('user_email');
         localStorage.removeItem('firebase_uid');
       }
-      
+
       setLoading(false);
     });
 
@@ -122,12 +131,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       };
 
       await setDoc(doc(db, 'users', user.uid), userProfile);
-      
+
       // Store in localStorage
       localStorage.setItem('user_id', userId);
       localStorage.setItem('api_key', apiKey);
       localStorage.setItem('user_email', email);
-      
+
       setUserProfile(userProfile);
     } catch (error: any) {
       console.error('Signup error:', error);
@@ -145,7 +154,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (userDoc.exists()) {
         const profile = userDoc.data() as UserProfile;
         setUserProfile(profile);
-        
+
         // Store in localStorage
         localStorage.setItem('user_id', profile.userId);
         localStorage.setItem('api_key', profile.apiKey);
@@ -202,14 +211,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       provider.setCustomParameters({
         prompt: 'select_account'
       });
-      
+
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
-      
+
       // Check if user profile exists in Firestore
       try {
         const userDoc = await getDoc(doc(db, 'users', user.uid));
-        
+
         if (!userDoc.exists()) {
           // Create new user profile for first-time Google sign-in
           const userId = generateUserId();
@@ -225,7 +234,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
           await setDoc(doc(db, 'users', user.uid), userProfile);
           setUserProfile(userProfile);
-          
+
           // Store in localStorage
           localStorage.setItem('user_id', userId);
           localStorage.setItem('api_key', apiKey);

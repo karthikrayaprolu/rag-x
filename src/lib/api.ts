@@ -14,12 +14,12 @@ function waitForAuth(): Promise<typeof auth.currentUser> {
       resolve(auth.currentUser);
       return;
     }
-    
+
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       unsubscribe();
       resolve(user);
     });
-    
+
     // Timeout after 5 seconds
     setTimeout(() => {
       resolve(auth.currentUser);
@@ -34,7 +34,7 @@ async function getAuthToken(): Promise<string | null> {
   // Wait for auth to be ready
   const user = await waitForAuth();
   if (!user) return null;
-  
+
   try {
     return await user.getIdToken(true); // Force refresh token
   } catch (error) {
@@ -51,7 +51,7 @@ async function apiRequest<T>(
   options: RequestInit = {}
 ): Promise<T> {
   const token = await getAuthToken();
-  
+
   const headers: Record<string, string> = {};
 
   // Add auth header if user is logged in
@@ -156,6 +156,53 @@ export async function deleteAllDocuments(): Promise<{ deleted: boolean; message:
   });
 }
 
+// ============ Chat History API ============
+
+export interface Message {
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp: string;
+  sources?: ChatSource[];
+}
+
+export interface ChatSession {
+  _id: string;
+  id?: string;
+  user_id: string;
+  title: string;
+  created_at: string;
+  updated_at: string;
+  messages: Message[];
+}
+
+export async function getChatHistory(): Promise<ChatSession[]> {
+  return apiRequest<ChatSession[]>('/history/');
+}
+
+export async function createChatSession(title: string = "New Chat"): Promise<ChatSession> {
+  return apiRequest<ChatSession>('/history/', {
+    method: 'POST',
+    body: JSON.stringify({ title }),
+  });
+}
+
+export async function getChatSession(sessionId: string): Promise<ChatSession> {
+  return apiRequest<ChatSession>(`/history/${sessionId}`);
+}
+
+export async function deleteChatSession(sessionId: string): Promise<void> {
+  return apiRequest<void>(`/history/${sessionId}`, {
+    method: 'DELETE',
+  });
+}
+
+export async function updateChatSession(sessionId: string, title: string): Promise<void> {
+  return apiRequest<void>(`/history/${sessionId}`, {
+    method: 'PATCH',
+    body: JSON.stringify({ title }),
+  });
+}
+
 // ============ Chat API ============
 
 export interface ChatSource {
@@ -181,7 +228,8 @@ export async function chatQuery(
   query: string,
   topK: number = 5,
   filter?: Record<string, any>,
-  systemPrompt?: string
+  systemPrompt?: string,
+  sessionId?: string
 ): Promise<ChatResponse> {
   return apiRequest<ChatResponse>('/chat/query', {
     method: 'POST',
@@ -190,6 +238,7 @@ export async function chatQuery(
       top_k: topK,
       filter,
       system_prompt: systemPrompt,
+      session_id: sessionId,
     }),
   });
 }
@@ -201,14 +250,15 @@ export async function* chatStream(
   query: string,
   topK: number = 5,
   filter?: Record<string, any>,
-  systemPrompt?: string
+  systemPrompt?: string,
+  sessionId?: string
 ): AsyncGenerator<string, void, unknown> {
   const token = await getAuthToken();
-  
+
   if (!token) {
     throw new Error('Please log in to continue');
   }
-  
+
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     'Authorization': `Bearer ${token}`,
@@ -222,6 +272,7 @@ export async function* chatStream(
       top_k: topK,
       filter,
       system_prompt: systemPrompt,
+      session_id: sessionId,
     }),
   });
 
