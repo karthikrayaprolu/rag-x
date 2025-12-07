@@ -232,7 +232,7 @@ export default function ChatBox() {
         </button>
 
         {/* Messages Area */}
-        <div className="flex-1 overflow-y-auto mt-4">
+        <div className="flex-1 overflow-y-auto mt-4" data-lenis-prevent>
           <div className="max-w-4xl mx-auto px-4 py-8">
             <AnimatePresence initial={false}>
               {messages.map((message, index) => (
@@ -407,7 +407,7 @@ export default function ChatBox() {
             New Chat
           </button>
 
-          <div className="flex-1 overflow-y-auto space-y-2">
+          <div className="flex-1 overflow-y-auto space-y-2" data-lenis-prevent>
             {chatHistory.length === 0 ? (
               <div className="text-center text-gray-500 mt-10">
                 <p>No chat history yet.</p>

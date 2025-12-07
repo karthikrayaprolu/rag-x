@@ -58,6 +58,8 @@ export default function DashboardPage() {
       setStats(prev => ({
         ...prev,
         totalEmbeddings: uploadStats.vector_count,
+        totalQueries: uploadStats.query_count || 0,
+        totalDocuments: uploadStats.total_documents || 0,
       }));
     } catch (error) {
       console.error('Failed to fetch stats:', error);

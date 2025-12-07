@@ -97,6 +97,8 @@ export interface UploadStats {
   namespace: string;
   vector_count: number;
   total_index_vectors: number;
+  total_documents: number;
+  query_count: number;
 }
 
 /**
