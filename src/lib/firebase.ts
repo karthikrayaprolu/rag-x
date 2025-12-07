@@ -16,6 +16,14 @@ const firebaseConfig = {
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 const auth = getAuth(app);
 
-const db = getFirestore(app);
+let db: Firestore;
+try {
+  db = initializeFirestore(app, {
+    experimentalForceLongPolling: true,
+  });
+} catch (e) {
+  // If already initialized, get the existing instance
+  db = getFirestore(app);
+}
 
 export { app, auth, db };
