@@ -16,14 +16,16 @@ const firebaseConfig = {
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 const auth = getAuth(app);
 
+// Check if config is loaded
+if (!firebaseConfig.apiKey) {
+  console.error('Firebase config missing. Check your .env.local file.');
+}
+
 let db: Firestore;
 try {
-  db = initializeFirestore(app, {
-    experimentalForceLongPolling: true,
-  });
-} catch (e) {
-  // If already initialized, get the existing instance
   db = getFirestore(app);
+} catch (e) {
+  console.error('Error initializing Firestore:', e);
 }
 
 export { app, auth, db };

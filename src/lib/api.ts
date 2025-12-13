@@ -318,3 +318,16 @@ export async function healthCheck(): Promise<{ status: string }> {
   const response = await fetch(`${API_BASE_URL.replace('/api/v1', '')}/health`);
   return response.json();
 }
+
+// ============ Payment API ============
+
+export interface CheckoutSessionResponse {
+  url: string;
+}
+
+export async function createCheckoutSession(priceId: string): Promise<CheckoutSessionResponse> {
+  return apiRequest<CheckoutSessionResponse>('/payments/create-checkout-session', {
+    method: 'POST',
+    body: JSON.stringify({ priceId }),
+  });
+}

@@ -6,6 +6,9 @@ import dynamic from 'next/dynamic';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
 import ParallaxElement from '@/components/ParallaxElement';
+import { ShootingStars } from '@/components/ui/shooting-stars';
+import { StarsBackground } from '@/components/ui/stars-background';
+import { HoverBorderGradient } from '@/components/ui/hover-border-gradient';
 
 // Dynamically import SplineScene to prevent SSR issues
 const SplineScene = dynamic(() => import('@/components/SplineScene'), {
@@ -17,17 +20,36 @@ const SplineScene = dynamic(() => import('@/components/SplineScene'), {
   ),
 });
 
-
-
 export default function Home() {
   const { user, loading } = useAuth();
 
   return (
-    <div className="min-h-screen bg-black text-white">
-      <main className="container mx-auto px-4" data-scroll-section>
+    <div className="min-h-screen bg-black text-white relative w-full overflow-hidden">
+
+      {/* Dynamic Background */}
+      <div className="absolute inset-0 z-0 pointer-events-none fixed">
+        <StarsBackground
+          starDensity={0.00015}
+          allStarsTwinkle={true}
+          twinkleProbability={0.7}
+          minTwinkleSpeed={0.5}
+          maxTwinkleSpeed={1.0}
+        />
+        <ShootingStars
+          minSpeed={10}
+          maxSpeed={30}
+          minDelay={1200}
+          maxDelay={4200}
+          starColor="#9E00FF"
+          trailColor="#2EB9DF"
+          starWidth={10}
+          starHeight={1}
+        />
+      </div>
+
+      <main className="container mx-auto px-4 relative z-10" data-scroll-section>
         {/* Hero Section with 3D Robot */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-0 min-h-[100vh]">
-          {/* Left side - Text Content */}
           {/* Left side - Text Content */}
           <div className="text-center lg:text-left ml-0 lg:ml-8">
             <ParallaxElement offset={20}>
@@ -50,24 +72,23 @@ export default function Home() {
 
             <ParallaxElement offset={40}>
               <motion.h1
-                className="text-5xl lg:text-7xl font-bold mb-6"
+                className="text-3xl lg:text-6xl font-bold mb-6 tracking-tight"
                 initial={{ opacity: 0, y: 50 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.2 }}
               >
-                Welcome to <span className="gradient-accent">RAGx</span>
+                <span className="gradient-accent">Welcome to RAGx</span>
               </motion.h1>
             </ParallaxElement>
 
             <ParallaxElement offset={60}>
               <motion.p
-                className="text-xl text-gray-400 mb-8 leading-relaxed"
+                className="text-xl text-gray-400 mb-8 leading-relaxed max-w-lg mx-auto lg:mx-0"
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.4 }}
               >
-                Your Custom RAG Platform. Upload documents, connect databases,
-                and get AI-powered answers with your own API endpoint.
+                Upload documents. Connect databases. Deploy your knowledge API.
               </motion.p>
             </ParallaxElement>
 
@@ -84,33 +105,45 @@ export default function Home() {
                 ) : user ? (
                   // User is logged in - show dashboard button
                   <>
-                    <Link
-                      href="/dashboard"
-                      className="bg-white text-black px-8 py-4 rounded-full font-semibold text-lg transition-all hover:bg-gray-200 transform hover:scale-105 text-center shadow-lg hover:shadow-xl"
-                    >
-                      Go to Dashboard
+                    <Link href="/dashboard">
+                      <HoverBorderGradient
+                        containerClassName="rounded-full"
+                        as="div"
+                        className="bg-neutral-900 text-white flex items-center space-x-2 px-8 py-3 text-lg"
+                      >
+                        <span>Go to Dashboard</span>
+                      </HoverBorderGradient>
                     </Link>
-                    <Link
-                      href="/chat"
-                      className="glass border border-white/20 text-white px-8 py-4 rounded-full font-semibold text-lg transition-all hover:bg-white/10 transform hover:scale-105 text-center"
-                    >
-                      Start Chatting
+                    <Link href="/chat">
+                      <HoverBorderGradient
+                        containerClassName="rounded-full"
+                        as="div"
+                        className="bg-neutral-900 text-white flex items-center space-x-2 px-8 py-3 text-lg"
+                      >
+                        <span>Start Chatting</span>
+                      </HoverBorderGradient>
                     </Link>
                   </>
                 ) : (
                   // User is not logged in - show auth buttons
                   <>
-                    <Link
-                      href="/auth"
-                      className="bg-white text-black px-8 py-4 rounded-full font-semibold text-lg transition-all hover:bg-gray-200 transform hover:scale-105 text-center shadow-lg hover:shadow-xl"
-                    >
-                      Get Started
+                    <Link href="/auth">
+                      <HoverBorderGradient
+                        containerClassName="rounded-full"
+                        as="div"
+                        className="bg-neutral-900 text-white flex items-center space-x-2 px-8 py-3 text-lg"
+                      >
+                        <span>Get Started</span>
+                      </HoverBorderGradient>
                     </Link>
-                    <Link
-                      href="/auth"
-                      className="glass border border-white/20 text-white px-8 py-4 rounded-full font-semibold text-lg transition-all hover:bg-white/10 transform hover:scale-105 text-center"
-                    >
-                      Login
+                    <Link href="/auth">
+                      <HoverBorderGradient
+                        containerClassName="rounded-full"
+                        as="div"
+                        className="bg-neutral-900 text-white flex items-center space-x-2 px-8 py-3 text-lg"
+                      >
+                        <span>Login</span>
+                      </HoverBorderGradient>
                     </Link>
                   </>
                 )}

@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { motion } from 'framer-motion';
 import {
   FiBarChart2,
   FiFileText,
@@ -13,7 +12,6 @@ import {
   FiBookOpen,
   FiCopy,
   FiCheck,
-  FiPlus,
   FiRefreshCw,
   FiActivity,
   FiServer
@@ -22,6 +20,7 @@ import { PiBrain } from 'react-icons/pi';
 import { getUploadStats, healthCheck } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import DashboardUpload from '@/components/DashboardUpload';
+import { GlowingEffect } from '@/components/ui/glowing-effect';
 
 export default function DashboardPage() {
   const { user, loading: authLoading, userProfile } = useAuth();
@@ -130,7 +129,7 @@ export default function DashboardPage() {
         <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-blue-900/20 rounded-full blur-[120px]"></div>
       </div>
 
-      <div className="container mx-auto px-4 lg:px-8">
+      <div className="container mx-auto px-4 lg:px-8 max-w-7xl">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10">
           <div>
@@ -155,180 +154,203 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition-all"
-          >
-            <div className="flex items-center justify-between mb-4">
-              <div className="p-2 bg-blue-500/20 rounded-lg text-blue-400">
-                <FiBarChart2 className="w-6 h-6" />
-              </div>
-              <span className="text-xs text-gray-500 font-mono">TOTAL QUERIES</span>
-            </div>
-            <div className="text-3xl font-bold text-white">{stats.totalQueries}</div>
-          </motion.div>
+        {/* Bento Grid Layout */}
+        <div className="grid grid-cols-12 gap-6">
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition-all"
-          >
-            <div className="flex items-center justify-between mb-4">
-              <div className="p-2 bg-purple-500/20 rounded-lg text-purple-400">
-                <FiFileText className="w-6 h-6" />
+          {/* 1. Total Queries */}
+          <div className="col-span-12 md:col-span-4 relative h-full rounded-3xl border border-white/10 p-2.5">
+            <GlowingEffect
+              spread={40}
+              glow={true}
+              disabled={false}
+              proximity={64}
+              inactiveZone={0.01}
+            />
+            <div className="relative flex h-full flex-col justify-between overflow-hidden rounded-2xl bg-white/5 p-6 backdrop-blur-xl border border-white/10">
+              <div className="flex items-center justify-between mb-4">
+                <div className="p-2 bg-blue-500/20 rounded-lg text-blue-400">
+                  <FiBarChart2 className="w-6 h-6" />
+                </div>
+                <span className="text-xs text-gray-500 font-mono">TOTAL QUERIES</span>
               </div>
-              <span className="text-xs text-gray-500 font-mono">DOCUMENTS</span>
+              <div className="text-3xl font-bold text-white">{stats.totalQueries}</div>
             </div>
-            <div className="text-3xl font-bold text-white">{stats.totalDocuments}</div>
-          </motion.div>
+          </div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition-all"
-          >
-            <div className="flex items-center justify-between mb-4">
-              <div className="p-2 bg-pink-500/20 rounded-lg text-pink-400">
-                <PiBrain className="w-6 h-6" />
+          {/* 2. Documents */}
+          <div className="col-span-12 md:col-span-4 relative h-full rounded-3xl border border-white/10 p-2.5">
+            <GlowingEffect
+              spread={40}
+              glow={true}
+              disabled={false}
+              proximity={64}
+              inactiveZone={0.01}
+            />
+            <div className="relative flex h-full flex-col justify-between overflow-hidden rounded-2xl bg-white/5 p-6 backdrop-blur-xl border border-white/10">
+              <div className="flex items-center justify-between mb-4">
+                <div className="p-2 bg-purple-500/20 rounded-lg text-purple-400">
+                  <FiFileText className="w-6 h-6" />
+                </div>
+                <span className="text-xs text-gray-500 font-mono">DOCUMENTS</span>
               </div>
-              <span className="text-xs text-gray-500 font-mono">EMBEDDINGS</span>
+              <div className="text-3xl font-bold text-white">{stats.totalDocuments}</div>
             </div>
-            <div className="text-3xl font-bold text-white">{stats.totalEmbeddings}</div>
-          </motion.div>
-        </div>
+          </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left Column: Upload & Data Sources */}
-          <div className="lg:col-span-2 space-y-8">
-            {/* Upload Component */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-            >
-              <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+          {/* 3. Embeddings */}
+          <div className="col-span-12 md:col-span-4 relative h-full rounded-3xl border border-white/10 p-2.5">
+            <GlowingEffect
+              spread={40}
+              glow={true}
+              disabled={false}
+              proximity={64}
+              inactiveZone={0.01}
+            />
+            <div className="relative flex h-full flex-col justify-between overflow-hidden rounded-2xl bg-white/5 p-6 backdrop-blur-xl border border-white/10">
+              <div className="flex items-center justify-between mb-4">
+                <div className="p-2 bg-pink-500/20 rounded-lg text-pink-400">
+                  <PiBrain className="w-6 h-6" />
+                </div>
+                <span className="text-xs text-gray-500 font-mono">EMBEDDINGS</span>
+              </div>
+              <div className="text-3xl font-bold text-white">{stats.totalEmbeddings}</div>
+            </div>
+          </div>
+
+          {/* 4. Upload Data (Large Card) */}
+          <div className="col-span-12 lg:col-span-8 relative h-full rounded-3xl border border-white/10 p-2.5">
+            <GlowingEffect
+              spread={40}
+              glow={true}
+              disabled={false}
+              proximity={64}
+              inactiveZone={0.01}
+            />
+            <div className="relative flex h-full flex-col overflow-hidden rounded-2xl bg-white/5 p-6 backdrop-blur-xl border border-white/10">
+              <h2 className="text-lg font-semibold mb-6 flex items-center gap-2 text-gray-200">
                 <FiUpload className="text-gray-400" />
                 Upload Data
               </h2>
               <DashboardUpload onUploadComplete={handleUploadComplete} />
-            </motion.div>
+            </div>
+          </div>
 
-            {/* Data Sources Table */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
-              className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden"
-            >
-              <div className="p-6 border-b border-white/10 flex items-center justify-between">
-                <h2 className="text-lg font-semibold flex items-center gap-2">
+          {/* 6. Recent Uploads Table (Now Small Right) */}
+          <div className="col-span-12 lg:col-span-4 relative h-full rounded-3xl border border-white/10 p-2.5">
+            <GlowingEffect
+              spread={40}
+              glow={true}
+              disabled={false}
+              proximity={64}
+              inactiveZone={0.01}
+            />
+            <div className="relative flex h-full flex-col overflow-hidden rounded-2xl bg-white/5 p-0 backdrop-blur-xl border border-white/10">
+              <div className="p-6 border-b border-white/10 flex items-center justify-between bg-white/5">
+                <h2 className="text-lg font-semibold flex items-center gap-2 text-gray-200">
                   <FiDatabase className="text-gray-400" />
                   Recent Uploads
                 </h2>
               </div>
 
-              <div className="p-6">
+              <div className="p-0 flex-grow overflow-hidden">
                 {dataSources.length > 0 ? (
-                  <table className="w-full">
-                    <thead>
-                      <tr className="text-left text-xs text-gray-500 border-b border-white/10">
-                        <th className="pb-3 font-medium">NAME</th>
-                        <th className="pb-3 font-medium">TYPE</th>
-                        <th className="pb-3 font-medium">STATUS</th>
-                        <th className="pb-3 font-medium">DATE</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {dataSources.map((source, i) => (
-                        <tr key={i} className="border-b border-white/5 last:border-0">
-                          <td className="py-4 text-sm">{source.name}</td>
-                          <td className="py-4 text-sm text-gray-400">{source.type}</td>
-                          <td className="py-4">
-                            <span className="px-2 py-1 rounded-full text-xs bg-green-500/10 text-green-400 border border-green-500/20">
-                              {source.status}
-                            </span>
-                          </td>
-                          <td className="py-4 text-sm text-gray-400">{source.date}</td>
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead>
+                        <tr className="text-left text-xs text-gray-500 border-b border-white/10">
+                          <th className="pl-6 py-3 font-medium">NAME</th>
+                          <th className="pr-6 py-3 font-medium text-right">STATUS</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody>
+                        {dataSources.map((source, i) => (
+                          <tr key={i} className="border-b border-white/5 last:border-0 hover:bg-white/5 transition-colors">
+                            <td className="pl-6 py-3 text-sm font-medium text-gray-300 truncate max-w-[120px]">{source.name}</td>
+                            <td className="pr-6 py-3 text-right">
+                              <span className="px-2 py-1 rounded-full text-[10px] bg-green-500/10 text-green-400 border border-green-500/20">
+                                {source.status}
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 ) : (
                   <div className="text-center py-8 text-gray-500">
                     <p className="text-sm">No recent uploads found.</p>
                   </div>
                 )}
               </div>
-            </motion.div>
+            </div>
           </div>
 
-          {/* Right Column: Quick Actions & API */}
-          <div className="space-y-6">
-            {/* Quick Actions */}
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.5 }}
-              className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6"
-            >
-              <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+          {/* 5. Quick Actions (Now Large Left) */}
+          <div className="col-span-12 lg:col-span-8 relative h-full rounded-3xl border border-white/10 p-2.5">
+            <GlowingEffect
+              spread={40}
+              glow={true}
+              disabled={false}
+              proximity={64}
+              inactiveZone={0.01}
+            />
+            <div className="relative flex h-full flex-col overflow-hidden rounded-2xl bg-white/5 p-6 backdrop-blur-xl border border-white/10">
+              <h2 className="text-lg font-semibold mb-6 flex items-center gap-2 text-gray-200">
                 <FiActivity className="text-gray-400" />
                 Quick Actions
               </h2>
-              <div className="space-y-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Link
                   href="/chat"
-                  className="flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-all border border-white/5 hover:border-white/20 group"
+                  className="flex items-center gap-3 p-4 rounded-xl bg-white/5 hover:bg-white/10 transition-all border border-white/5 hover:border-white/20 group"
                 >
-                  <div className="p-2 bg-purple-500/20 rounded-lg text-purple-400 group-hover:scale-110 transition-transform">
-                    <FiMessageSquare />
+                  <div className="p-3 bg-purple-500/20 rounded-xl text-purple-400 group-hover:scale-110 transition-transform">
+                    <FiMessageSquare className="w-6 h-6" />
                   </div>
                   <div>
-                    <div className="font-medium text-sm">Chat Interface</div>
-                    <div className="text-xs text-gray-500">Test your RAG</div>
+                    <div className="font-medium text-base">Chat Interface</div>
+                    <div className="text-sm text-gray-500">Test your RAG interactively</div>
                   </div>
                 </Link>
 
-                <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-all border border-white/5 hover:border-white/20 group cursor-pointer">
-                  <div className="p-2 bg-orange-500/20 rounded-lg text-orange-400 group-hover:scale-110 transition-transform">
-                    <FiBookOpen />
+                <div className="flex items-center gap-3 p-4 rounded-xl bg-white/5 hover:bg-white/10 transition-all border border-white/5 hover:border-white/20 group cursor-pointer">
+                  <div className="p-3 bg-orange-500/20 rounded-xl text-orange-400 group-hover:scale-110 transition-transform">
+                    <FiBookOpen className="w-6 h-6" />
                   </div>
                   <div>
-                    <div className="font-medium text-sm">Documentation</div>
-                    <div className="text-xs text-gray-500">View API docs</div>
+                    <div className="font-medium text-base">Documentation</div>
+                    <div className="text-sm text-gray-500">View comprehensive API docs</div>
                   </div>
                 </div>
               </div>
-            </motion.div>
+            </div>
+          </div>
 
-            {/* API Credentials (Compact) */}
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.6 }}
-              className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6"
-            >
-              <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+          {/* 7. API Access */}
+          <div className="col-span-12 lg:col-span-4 relative h-full rounded-3xl border border-white/10 p-2.5">
+            <GlowingEffect
+              spread={40}
+              glow={true}
+              disabled={false}
+              proximity={64}
+              inactiveZone={0.01}
+            />
+            <div className="relative flex h-full flex-col overflow-hidden rounded-2xl bg-white/5 p-6 backdrop-blur-xl border border-white/10">
+              <h2 className="text-lg font-semibold mb-6 flex items-center gap-2 text-gray-200">
                 <FiServer className="text-gray-400" />
                 API Access
               </h2>
 
-              <div className="space-y-4">
+              <div className="space-y-6">
                 <div>
-                  <label className="text-xs text-gray-500 font-mono mb-1 block">USER ID</label>
+                  <label className="text-xs text-gray-500 font-mono mb-2 block uppercase tracking-wider">User ID</label>
                   <div className="flex items-center gap-2">
-                    <code className="flex-1 bg-black/50 px-3 py-2 rounded-lg text-xs font-mono text-gray-300 truncate">
+                    <code className="flex-1 bg-black/50 px-3 py-2.5 rounded-xl text-xs font-mono text-gray-300 truncate border border-white/5">
                       {userId}
                     </code>
                     <button
                       onClick={() => copyToClipboard(userId, 'uid')}
-                      className="p-2 hover:bg-white/10 rounded-lg transition-colors text-gray-400 hover:text-white"
+                      className="p-2.5 bg-white/5 hover:bg-white/10 border border-white/5 rounded-xl transition-colors text-gray-400 hover:text-white"
                     >
                       {copiedKey === 'uid' ? <FiCheck className="text-green-400" /> : <FiCopy />}
                     </button>
@@ -336,22 +358,23 @@ export default function DashboardPage() {
                 </div>
 
                 <div>
-                  <label className="text-xs text-gray-500 font-mono mb-1 block">API ENDPOINT</label>
+                  <label className="text-xs text-gray-500 font-mono mb-2 block uppercase tracking-wider">API Endpoint</label>
                   <div className="flex items-center gap-2">
-                    <code className="flex-1 bg-black/50 px-3 py-2 rounded-lg text-xs font-mono text-gray-300 truncate">
+                    <code className="flex-1 bg-black/50 px-3 py-2.5 rounded-xl text-xs font-mono text-gray-300 truncate border border-white/5">
                       {apiEndpoint}
                     </code>
                     <button
                       onClick={() => copyToClipboard(apiEndpoint, 'url')}
-                      className="p-2 hover:bg-white/10 rounded-lg transition-colors text-gray-400 hover:text-white"
+                      className="p-2.5 bg-white/5 hover:bg-white/10 border border-white/5 rounded-xl transition-colors text-gray-400 hover:text-white"
                     >
                       {copiedKey === 'url' ? <FiCheck className="text-green-400" /> : <FiCopy />}
                     </button>
                   </div>
                 </div>
               </div>
-            </motion.div>
+            </div>
           </div>
+
         </div>
       </div>
     </div>

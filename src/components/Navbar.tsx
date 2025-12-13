@@ -1,11 +1,24 @@
 'use client';
 
+
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
-import { FiUser, FiLogOut } from 'react-icons/fi';
+import {
+  FiUser,
+  FiLogOut,
+  FiChevronDown,
+  FiCpu,
+  FiMessageSquare,
+  FiDatabase,
+  FiLock,
+  FiCode,
+  FiShield,
+  FiDollarSign,
+  FiFileText
+} from 'react-icons/fi';
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -13,6 +26,7 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const { user, userProfile, logout } = useAuth();
 
   useEffect(() => {
@@ -33,22 +47,44 @@ export default function Navbar() {
     }
   };
 
-  const navLinks = [
-    { href: '/', label: 'Home' },
-    { href: '/dashboard', label: 'Dashboard' },
-    { href: '/chat', label: 'Chat' },
+  const platformFeatures = [
+    {
+      title: "Smart Ingestion",
+      desc: "Parse PDF, CSV, TXT, JSON with auto-chunking & embeddings.",
+      icon: FiFileText,
+      href: "/platform/ingestion"
+    },
+    {
+      title: "Context-Aware Chat",
+      desc: "Streaming AI chat with source-backed answers.",
+      icon: FiMessageSquare,
+      href: "/platform/chat"
+    },
+    {
+      title: "Chat History",
+      desc: "Persistent conversations stored in MongoDB.",
+      icon: FiDatabase,
+      href: "/platform/history"
+    },
+    {
+      title: "Secure & Private",
+      desc: "Strict namespace isolation via Pinecone & Firebase.",
+      icon: FiLock,
+      href: "/platform/security"
+    }
   ];
 
   return (
     <>
       <motion.nav
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrolled
-            ? 'bg-black/60 backdrop-blur-md border-b border-white/5 shadow-lg'
-            : 'bg-transparent border-b border-transparent'
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrolled || activeDropdown
+          ? 'bg-black/80 backdrop-blur-xl border-b border-white/5 shadow-2xl'
+          : 'bg-transparent border-b border-transparent'
           }`}
         initial={{ y: -100 }}
         animate={{ y: 0 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
+        onMouseLeave={() => setActiveDropdown(null)}
       >
         <div className="container mx-auto px-4 lg:px-8">
           <div className="flex items-center justify-between h-20">
@@ -57,40 +93,59 @@ export default function Navbar() {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, delay: 0.1 }}
+              className="flex-shrink-0"
             >
               <Link
                 href="/"
-                className="relative z-10 text-2xl font-bold tracking-tight text-white"
+                className="relative z-10 text-2xl font-bold tracking-tight text-white flex items-center gap-2"
               >
-                RAGx
+                <span className="bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">RAGx</span>
               </Link>
             </motion.div>
 
-            {/* Desktop Navigation - Hidden if not logged in */}
-            <div className="hidden lg:flex items-center space-x-2">
-              {user && navLinks.map((link, index) => (
-                <motion.div
-                  key={link.href}
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: 0.2 + index * 0.08 }}
+            {/* Desktop Navigation */}
+            <div className="hidden lg:flex items-center space-x-1">
+              {/* Platform (Mega Menu) */}
+              <div
+                className="relative"
+                onMouseEnter={() => setActiveDropdown('platform')}
+              >
+                <button
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 flex items-center gap-1 ${activeDropdown === 'platform' ? 'text-white bg-white/10' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
                 >
-                  <Link
-                    href={link.href}
-                    className={`relative px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${pathname === link.href
-                        ? 'bg-white/10 text-white shadow-[0_0_15px_rgba(255,255,255,0.1)] border border-white/10'
-                        : 'text-gray-400 hover:text-white hover:bg-white/5'
-                      }`}
-                  >
-                    {link.label}
-                  </Link>
-                </motion.div>
-              ))}
+                  Platform
+                  <FiChevronDown className={`w-4 h-4 transition-transform duration-300 ${activeDropdown === 'platform' ? 'rotate-180' : ''}`} />
+                </button>
+              </div>
+
+              {/* Developers */}
+              <Link
+                href="/developers"
+                className="px-4 py-2 rounded-full text-sm font-medium text-gray-400 hover:text-white hover:bg-white/5 transition-all duration-300"
+              >
+                Developers
+              </Link>
+
+              {/* Security */}
+              <Link
+                href="/security"
+                className="px-4 py-2 rounded-full text-sm font-medium text-gray-400 hover:text-white hover:bg-white/5 transition-all duration-300"
+              >
+                Security
+              </Link>
+
+              {/* Pricing */}
+              <Link
+                href="/pricing"
+                className="px-4 py-2 rounded-full text-sm font-medium text-gray-400 hover:text-white hover:bg-white/5 transition-all duration-300"
+              >
+                Pricing
+              </Link>
             </div>
 
-            {/* CTA Button / User Profile */}
+            {/* Right Side: Auth */}
             <motion.div
-              className="hidden lg:flex items-center"
+              className="hidden lg:flex items-center gap-4"
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, delay: 0.4 }}
@@ -134,6 +189,14 @@ export default function Navbar() {
                             <FiUser className="w-4 h-4" />
                             <span className="text-sm">Dashboard</span>
                           </Link>
+                          <Link
+                            href="/chat"
+                            onClick={() => setProfileMenuOpen(false)}
+                            className="flex items-center gap-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-white/5 rounded-xl transition-all"
+                          >
+                            <FiMessageSquare className="w-4 h-4" />
+                            <span className="text-sm">Chat</span>
+                          </Link>
                           <button
                             onClick={handleLogout}
                             className="w-full flex items-center gap-3 px-4 py-3 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-xl transition-all"
@@ -147,12 +210,20 @@ export default function Navbar() {
                   </AnimatePresence>
                 </div>
               ) : (
-                <Link
-                  href="/auth"
-                  className="relative group px-6 py-2.5 bg-white text-black rounded-full font-semibold text-sm transition-all hover:shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:scale-105 active:scale-95"
-                >
-                  <span className="relative z-10">Get Started</span>
-                </Link>
+                <>
+                  <Link
+                    href="/auth"
+                    className="text-sm font-medium text-gray-300 hover:text-white transition-colors"
+                  >
+                    Sign In
+                  </Link>
+                  <Link
+                    href="/auth"
+                    className="relative group px-5 py-2.5 bg-white text-black rounded-full font-bold text-sm transition-all hover:shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:scale-105 active:scale-95"
+                  >
+                    <span className="relative z-10">Get Started</span>
+                  </Link>
+                </>
               )}
             </motion.div>
 
@@ -183,93 +254,104 @@ export default function Navbar() {
             </motion.button>
           </div>
         </div>
-      </motion.nav>
 
-      {/* Mobile Menu */}
-      <AnimatePresence>
-        {mobileMenuOpen && (
-          <motion.div
-            className="fixed inset-0 z-40 lg:hidden"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-          >
+        {/* Mega Menu Dropdown */}
+        <AnimatePresence>
+          {activeDropdown === 'platform' && (
             <motion.div
-              className="absolute inset-0 bg-black/90 backdrop-blur-xl"
-              onClick={() => setMobileMenuOpen(false)}
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+              className="absolute left-0 right-0 top-20 bg-black/90 backdrop-blur-3xl border-b border-white/10 shadow-2xl py-12"
+              onMouseEnter={() => setActiveDropdown('platform')}
+              onMouseLeave={() => setActiveDropdown(null)}
+            >
+              <div className="container mx-auto px-4 lg:px-8">
+                <div className="grid grid-cols-4 gap-8">
+                  <div className="col-span-1">
+                    <h3 className="text-lg font-bold text-white mb-2">RAGx Platform</h3>
+                    <p className="text-gray-400 text-sm leading-relaxed">
+                      A high-performance Multi-Tenant Retrieval-Augmented Generation platform. Parse, Index, and Chat with your documents securely.
+                    </p>
+                    <div className="mt-6">
+                      <Link href="/auth" className="text-sm font-semibold text-purple-400 hover:text-purple-300 flex items-center gap-1">
+                        Get Started <FiChevronDown className="rotate-[-90deg]" />
+                      </Link>
+                    </div>
+                  </div>
+                  <div className="col-span-3 grid grid-cols-2 gap-x-12 gap-y-8">
+                    {platformFeatures.map((feature, idx) => (
+                      <Link key={idx} href={feature.href} className="group flex gap-4">
+                        <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-white/10 transition-colors">
+                          <feature.icon className="w-6 h-6 text-purple-400 group-hover:text-purple-300" />
+                        </div>
+                        <div>
+                          <h4 className="text-sm font-bold text-white group-hover:text-purple-300 transition-colors">
+                            {feature.title}
+                          </h4>
+                          <p className="text-sm text-gray-500 mt-1 leading-snug">
+                            {feature.desc}
+                          </p>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Mobile Menu Overlay */}
+        <AnimatePresence>
+          {mobileMenuOpen && (
+            <motion.div
+              className="fixed inset-0 z-40 lg:hidden bg-black/95 backdrop-blur-xl pt-24 px-6 overflow-y-auto"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-            />
-            <motion.div
-              className="relative h-full flex flex-col items-center justify-center space-y-8"
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: 20, opacity: 0 }}
-              transition={{ duration: 0.3 }}
             >
-              {user && navLinks.map((link, index) => (
-                <motion.div
-                  key={link.href}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3, delay: index * 0.1 }}
-                >
-                  <Link
-                    href={link.href}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className={`text-3xl font-bold tracking-tight transition-all duration-300 ${pathname === link.href
-                        ? 'text-white'
-                        : 'text-gray-500 hover:text-white'
-                      }`}
-                  >
-                    {link.label}
-                  </Link>
-                </motion.div>
-              ))}
-
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3, delay: 0.2 }}
-              >
-                {user ? (
-                  <div className="flex flex-col items-center gap-6 mt-8">
-                    <div className="flex items-center gap-3 px-6 py-3 bg-white/5 rounded-full border border-white/10">
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center">
-                        <FiUser className="w-5 h-5 text-white" />
-                      </div>
-                      <div className="text-left">
-                        <p className="text-white font-semibold">{userProfile?.name || 'User'}</p>
-                        <p className="text-gray-400 text-xs">{user.email?.split('@')[0]}</p>
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => {
-                        setMobileMenuOpen(false);
-                        handleLogout();
-                      }}
-                      className="flex items-center gap-2 text-red-400 hover:text-red-300 transition-colors font-medium"
+              <div className="flex flex-col space-y-6">
+                <div className="space-y-4">
+                  <h3 className="text-gray-500 text-xs font-bold uppercase tracking-widest px-2">Platform</h3>
+                  {platformFeatures.map((item) => (
+                    <Link
+                      key={item.title}
+                      href={item.href}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5"
                     >
-                      <FiLogOut className="w-5 h-5" />
-                      <span>Sign Out</span>
-                    </button>
+                      <item.icon className="w-5 h-5 text-purple-400" />
+                      <span className="text-lg font-medium text-white">{item.title}</span>
+                    </Link>
+                  ))}
+                </div>
+
+                <div className="h-px bg-white/10 my-2" />
+
+                <Link href="/developers" onClick={() => setMobileMenuOpen(false)} className="text-xl font-bold text-white hover:text-gray-300">Developers</Link>
+                <Link href="/security" onClick={() => setMobileMenuOpen(false)} className="text-xl font-bold text-white hover:text-gray-300">Security</Link>
+                <Link href="/pricing" onClick={() => setMobileMenuOpen(false)} className="text-xl font-bold text-white hover:text-gray-300">Pricing</Link>
+
+                <div className="h-px bg-white/10 my-4" />
+
+                {user ? (
+                  <div className="space-y-4">
+                    <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)} className="block w-full text-center py-3 bg-white/10 rounded-xl text-white font-bold">Dashboard</Link>
+                    <button onClick={handleLogout} className="block w-full text-center py-3 text-red-400 font-medium">Sign Out</button>
                   </div>
                 ) : (
-                  <Link
-                    href="/auth"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="px-8 py-4 bg-white text-black rounded-full font-bold text-lg hover:bg-gray-200 transition-all"
-                  >
-                    Get Started
-                  </Link>
+                  <div className="flex flex-col gap-4">
+                    <Link href="/auth" onClick={() => setMobileMenuOpen(false)} className="w-full py-4 bg-white/5 rounded-full text-center text-white font-bold">Sign In</Link>
+                    <Link href="/auth" onClick={() => setMobileMenuOpen(false)} className="w-full py-4 bg-white rounded-full text-center text-black font-bold">Get Started</Link>
+                  </div>
                 )}
-              </motion.div>
+              </div>
             </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          )}
+        </AnimatePresence>
+      </motion.nav>
     </>
   );
 }
