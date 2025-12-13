@@ -1,6 +1,5 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
-import { initializeFirestore, persistentLocalCache, getFirestore, Firestore } from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -21,11 +20,4 @@ if (!firebaseConfig.apiKey) {
   console.error('Firebase config missing. Check your .env.local file.');
 }
 
-let db: Firestore;
-try {
-  db = getFirestore(app);
-} catch (e) {
-  console.error('Error initializing Firestore:', e);
-}
-
-export { app, auth, db };
+export { app, auth };

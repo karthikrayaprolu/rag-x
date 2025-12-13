@@ -42,6 +42,7 @@ export default function ChatBox() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [chatHistory, setChatHistory] = useState<ChatSession[]>([]);
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
+  const [deletingSessionId, setDeletingSessionId] = useState<string | null>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -99,6 +100,7 @@ export default function ChatBox() {
 
   const handleDeleteSession = async (e: React.MouseEvent, sessionId: string) => {
     e.stopPropagation();
+    setDeletingSessionId(sessionId);
     try {
       await deleteChatSession(sessionId);
       setChatHistory(prev => prev.filter(s => (s._id || s.id) !== sessionId));
@@ -107,6 +109,8 @@ export default function ChatBox() {
       }
     } catch (error) {
       console.error("Failed to delete session:", error);
+    } finally {
+      setDeletingSessionId(null);
     }
   };
 
@@ -137,17 +141,6 @@ export default function ChatBox() {
     let sessionId = currentSessionId;
 
     try {
-      // Create a new session if one doesn't exist
-      if (!sessionId) {
-        const newSession = await createChatSession(userQuery.substring(0, 30) + "...");
-        sessionId = newSession._id || newSession.id || null;
-        if (!sessionId) {
-          console.error("Failed to get session ID from new session:", newSession);
-        }
-        setCurrentSessionId(sessionId);
-        setChatHistory(prev => [newSession, ...prev]);
-      }
-
       // Use streaming for real-time response
       let fullResponse = '';
 
@@ -166,6 +159,16 @@ export default function ChatBox() {
 
       setMessages(prev => [...prev, botMessage]);
       setStreamingText('');
+      
+      // Reload chat history to get the new session
+      if (!sessionId) {
+        await loadChatHistory();
+        // Set the current session to the most recent one
+        const history = await getChatHistory();
+        if (history && history.length > 0) {
+          setCurrentSessionId(history[0]._id || history[0].id || null);
+        }
+      }
 
     } catch (error: any) {
       console.error('Chat error:', error);
@@ -183,6 +186,15 @@ export default function ChatBox() {
         };
 
         setMessages(prev => [...prev, botMessage]);
+        
+        // Reload chat history to get the new session
+        if (!sessionId) {
+          await loadChatHistory();
+          const history = await getChatHistory();
+          if (history && history.length > 0) {
+            setCurrentSessionId(history[0]._id || history[0].id || null);
+          }
+        }
       } catch (fallbackError: any) {
         const errorMessage: Message = {
           id: Date.now() + 1,
@@ -444,6 +456,42 @@ export default function ChatBox() {
           </div>
         </div>
       </motion.div>
+
+      {/* Transparent Loading Overlay for Delete */}
+      <AnimatePresence>
+        {deletingSessionId && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center"
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-8 shadow-2xl"
+            >
+              <div className="flex flex-col items-center gap-4">
+                <div className="relative w-16 h-16">
+                  <motion.div
+                    className="absolute inset-0 border-4 border-red-500/30 rounded-full"
+                  />
+                  <motion.div
+                    className="absolute inset-0 border-4 border-transparent border-t-red-500 rounded-full"
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                  />
+                </div>
+                <div className="text-center">
+                  <p className="text-white font-semibold text-lg">Deleting Chat</p>
+                  <p className="text-gray-400 text-sm mt-1">Please wait...</p>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
