@@ -109,36 +109,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       await signInWithEmailAndPassword(auth, email, password);
       // User profile will be set by onAuthStateChanged
-
-      // Fetch user profile
-      const userDoc = await getDoc(doc(db, 'users', user.uid));
-      if (userDoc.exists()) {
-        const profile = userDoc.data() as UserProfile;
-        setUserProfile(profile);
-
-        // Store in localStorage
-        localStorage.setItem('user_id', profile.userId);
-        localStorage.setItem('api_key', profile.apiKey);
-        localStorage.setItem('user_email', email);
-        localStorage.setItem('firebase_uid', user.uid);
-      } else {
-        // Create profile if it doesn't exist (for users created before profile system)
-        const userId = generateUserId();
-        const apiKey = generateApiKey();
-        const newProfile: UserProfile = {
-          userId,
-          apiKey,
-          email,
-          name: user.displayName || 'User',
-          createdAt: new Date().toISOString(),
-        };
-        await setDoc(doc(db, 'users', user.uid), newProfile);
-        setUserProfile(newProfile);
-        localStorage.setItem('user_id', userId);
-        localStorage.setItem('api_key', apiKey);
-        localStorage.setItem('user_email', email);
-        localStorage.setItem('firebase_uid', user.uid);
-      }
     } catch (error: any) {
       console.error('Login error:', error);
       // Provide user-friendly error messages
