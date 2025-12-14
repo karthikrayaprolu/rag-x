@@ -120,57 +120,7 @@ export default function Home() {
               </motion.p>
             </ParallaxElement>
 
-            {/* Real-time Query Counter */}
-            {user && totalQueries !== null && (
-              <ParallaxElement offset={70}>
-                <motion.div
-                  className="mb-8 flex justify-center lg:justify-start"
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.6, delay: 0.5 }}
-                >
-                  <div className="relative group">
-                    {/* Glow effect */}
-                    <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl blur-lg opacity-25 group-hover:opacity-40 transition duration-500"></div>
-                    
-                    {/* Counter card */}
-                    <div className="relative bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl px-8 py-4 flex items-center gap-4">
-                      <div className="flex flex-col items-start">
-                        <span className="text-sm text-gray-400 font-medium">Total Queries</span>
-                        <div className="flex items-baseline gap-2">
-                          <motion.span
-                            key={totalQueries}
-                            className="text-4xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent"
-                            initial={{ scale: 1.2, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            transition={{ duration: 0.3 }}
-                          >
-                            {totalQueries.toLocaleString()}
-                          </motion.span>
-                          {!statsLoading && (
-                            <motion.div
-                              className="w-2 h-2 rounded-full bg-green-400"
-                              animate={{ opacity: [1, 0.5, 1] }}
-                              transition={{ duration: 2, repeat: Infinity }}
-                            />
-                          )}
-                        </div>
-                      </div>
-                      
-                      {statsLoading && (
-                        <div className="ml-2">
-                          <motion.div
-                            className="w-5 h-5 border-2 border-purple-400 border-t-transparent rounded-full"
-                            animate={{ rotate: 360 }}
-                            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                          />
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </motion.div>
-              </ParallaxElement>
-            )}
+
 
             <ParallaxElement offset={80}>
               <motion.div
