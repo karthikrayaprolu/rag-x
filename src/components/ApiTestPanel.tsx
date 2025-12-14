@@ -83,7 +83,7 @@ export default function ApiTestPanel() {
         message: 'Authentication successful',
         duration: Date.now() - startTime3,
       };
-      
+
       // Test 4: Upload Stats (only if authenticated)
       const startTime4 = Date.now();
       try {
@@ -137,6 +137,7 @@ export default function ApiTestPanel() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 20 }}
+          onWheel={(e) => e.stopPropagation()}
           className="fixed bottom-24 right-6 z-40 w-96 bg-black/95 backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl overflow-hidden"
         >
           {/* Header */}
@@ -163,7 +164,7 @@ export default function ApiTestPanel() {
           </div>
 
           {/* Content */}
-          <div className="p-4 max-h-96 overflow-y-auto">
+          <div className="p-4 max-h-96 overflow-y-auto overscroll-y-contain">
             {results.length === 0 ? (
               <div className="text-center py-8 text-gray-500">
                 <FiDatabase className="w-12 h-12 mx-auto mb-3 opacity-50" />
@@ -199,11 +200,10 @@ export default function ApiTestPanel() {
                         <div className="font-medium text-sm text-white mb-1">
                           {result.test}
                         </div>
-                        <div className={`text-xs ${
-                          result.status === 'success' ? 'text-green-400' :
-                          result.status === 'error' ? 'text-red-400' :
-                          'text-gray-500'
-                        } break-words`}>
+                        <div className={`text-xs ${result.status === 'success' ? 'text-green-400' :
+                            result.status === 'error' ? 'text-red-400' :
+                              'text-gray-500'
+                          } break-words`}>
                           {result.message || 'Running test...'}
                         </div>
                         {result.duration && (
