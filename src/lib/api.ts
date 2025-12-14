@@ -5,6 +5,8 @@ import { onAuthStateChanged } from 'firebase/auth';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
 
+
+
 /**
  * Wait for Firebase auth to be ready and get the current user
  */
@@ -44,11 +46,12 @@ async function getAuthToken(): Promise<string | null> {
 }
 
 /**
- * Make an authenticated API request
+ * Make an authenticated API request with retry logic
  */
 async function apiRequest<T>(
   endpoint: string,
-  options: RequestInit = {}
+  options: RequestInit = {},
+  retries: number = 3
 ): Promise<T> {
   const token = await getAuthToken();
 
@@ -61,25 +64,91 @@ async function apiRequest<T>(
     // User must be logged in to make API requests
     throw new Error('Please log in to continue');
   }
+
   // Don't set Content-Type for FormData (browser will set it with boundary)
   if (!(options.body instanceof FormData)) {
     headers['Content-Type'] = 'application/json';
   }
 
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-    ...options,
-    headers: {
-      ...headers,
-      ...(options.headers as Record<string, string>),
-    },
-  });
+  const url = `${API_BASE_URL}${endpoint}`;
+  console.log(`API Request: ${options.method || 'GET'} ${url}`);
 
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ detail: 'Request failed' }));
-    throw new Error(error.detail || `API error: ${response.status}`);
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      const response = await fetch(url, {
+        ...options,
+        headers: {
+          ...headers,
+          ...(options.headers as Record<string, string>),
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ detail: 'Request failed' }));
+        const errorMessage = errorData.detail || `API error: ${response.status}`;
+
+        console.error(`API Error [${response.status}]:`, errorMessage);
+
+        // Don't retry on 4xx errors (client errors)
+        if (response.status >= 400 && response.status < 500) {
+          throw new Error(errorMessage);
+        }
+
+        // Retry on 5xx errors (server errors)
+        if (attempt < retries) {
+          console.log(`Retrying... (${attempt + 1}/${retries})`);
+          await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1)));
+          continue;
+        }
+
+        throw new Error(errorMessage);
+      }
+
+      const data = await response.json();
+      console.log(`API Success: ${options.method || 'GET'} ${endpoint}`);
+      return data;
+    } catch (error: any) {
+      if (attempt === retries) {
+        console.error(`API Request failed after ${retries} retries:`, error);
+        throw error;
+      }
+
+      // Network errors - retry
+      if (error.name === 'TypeError' || error.message.includes('fetch')) {
+        console.log(`Network error, retrying... (${attempt + 1}/${retries})`);
+        await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1)));
+        continue;
+      }
+
+      throw error;
+    }
   }
 
-  return response.json();
+  throw new Error('Request failed after all retries');
+}
+
+// ============ Auth API ============
+
+export interface ApiKeyResponse {
+  api_key: string;
+}
+
+/**
+ * Get the current API Key for the user
+ */
+export async function getApiKey(): Promise<string> {
+  const data = await apiRequest<ApiKeyResponse>('/auth/api-key');
+  return data.api_key;
+}
+
+/**
+ * Generate a new API Key for the user
+ */
+export async function generateApiKey(): Promise<string> {
+  const data = await apiRequest<ApiKeyResponse>('/auth/api-key', {
+    method: 'POST'
+  });
+  return data.api_key;
 }
 
 // ============ Upload API ============
@@ -315,8 +384,61 @@ export async function* chatStream(
 // ============ Health Check ============
 
 export async function healthCheck(): Promise<{ status: string }> {
-  const response = await fetch(`${API_BASE_URL.replace('/api/v1', '')}/health`);
-  return response.json();
+  try {
+    const response = await fetch(`${API_BASE_URL.replace('/api/v1', '')}/health`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Health check failed: ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log('✅ Backend health check passed:', data);
+    return data;
+  } catch (error) {
+    console.error('❌ Backend health check failed:', error);
+    throw error;
+  }
+}
+
+// ============ API Info & Debugging ============
+
+/**
+ * Get API base URL for debugging
+ */
+export function getApiBaseUrl(): string {
+  return API_BASE_URL;
+}
+
+/**
+ * Test API connectivity
+ */
+export async function testApiConnection(): Promise<{
+  connected: boolean;
+  latency: number;
+  url: string;
+  error?: string;
+}> {
+  const startTime = Date.now();
+  try {
+    await healthCheck();
+    return {
+      connected: true,
+      latency: Date.now() - startTime,
+      url: API_BASE_URL,
+    };
+  } catch (error: any) {
+    return {
+      connected: false,
+      latency: Date.now() - startTime,
+      url: API_BASE_URL,
+      error: error.message,
+    };
+  }
 }
 
 // ============ Payment API ============

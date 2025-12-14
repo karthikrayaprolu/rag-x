@@ -17,10 +17,11 @@ import {
   FiServer
 } from 'react-icons/fi';
 import { PiBrain } from 'react-icons/pi';
-import { getUploadStats, healthCheck } from '@/lib/api';
+import { getUploadStats, healthCheck, testApiConnection, getApiBaseUrl, getApiKey, generateApiKey } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import DashboardUpload from '@/components/DashboardUpload';
 import { GlowingEffect } from '@/components/ui/glowing-effect';
+import ApiTestPanel from '@/components/ApiTestPanel';
 
 export default function DashboardPage() {
   const { user, loading: authLoading, userProfile } = useAuth();
@@ -36,6 +37,8 @@ export default function DashboardPage() {
     totalDocuments: 0,
     totalEmbeddings: 0,
   });
+  const [apiKey, setApiKey] = useState('Loading...');
+  const [isRegeneratingKey, setIsRegeneratingKey] = useState(false);
   const [isLoadingStats, setIsLoadingStats] = useState(true);
 
   // Auth guard
@@ -53,25 +56,57 @@ export default function DashboardPage() {
 
     setIsLoadingStats(true);
     try {
+      console.log('📊 Fetching upload stats...');
       const uploadStats = await getUploadStats();
+      console.log('✅ Stats fetched successfully:', uploadStats);
+
       setStats(prev => ({
         ...prev,
         totalEmbeddings: uploadStats.vector_count,
         totalQueries: uploadStats.query_count || 0,
         totalDocuments: uploadStats.total_documents || 0,
       }));
-    } catch (error) {
-      console.error('Failed to fetch stats:', error);
+    } catch (error: any) {
+      console.error('❌ Failed to fetch stats:', error);
+      // Don't show error to user, just keep previous stats
     } finally {
       setIsLoadingStats(false);
     }
   };
 
-  const checkBackendHealth = async () => {
+  const fetchApiKey = async () => {
+    if (authLoading || !user) return;
     try {
+      const key = await getApiKey();
+      setApiKey(key);
+    } catch (error) {
+      console.error('Failed to fetch API key:', error);
+      setApiKey('Error loading key');
+    }
+  };
+
+  const handleRegenerateKey = async () => {
+    if (!confirm('Are you sure? This will invalidate your old API key.')) return;
+    setIsRegeneratingKey(true);
+    try {
+      const key = await generateApiKey();
+      setApiKey(key);
+    } catch (error) {
+      console.error('Failed to regenerate key:', error);
+    } finally {
+      setIsRegeneratingKey(false);
+    }
+  };
+
+  const checkBackendHealth = async () => {
+    setBackendStatus('checking');
+    try {
+      console.log('🏥 Checking backend health...');
       await healthCheck();
+      console.log('✅ Backend is online');
       setBackendStatus('online');
-    } catch {
+    } catch (error) {
+      console.error('❌ Backend health check failed:', error);
       setBackendStatus('offline');
     }
   };
@@ -89,6 +124,7 @@ export default function DashboardPage() {
 
     const timer = setTimeout(() => {
       fetchStats();
+      fetchApiKey();
     }, 500);
 
     setDataSources([]);
@@ -358,6 +394,26 @@ export default function DashboardPage() {
                 </div>
 
                 <div>
+                  <label className="text-xs text-gray-500 font-mono mb-2 block uppercase tracking-wider flex justify-between items-center">
+                    <span>API Key</span>
+                    <button onClick={handleRegenerateKey} disabled={isRegeneratingKey} className="text-[10px] text-blue-400 hover:text-blue-300 cursor-pointer">
+                      {isRegeneratingKey ? 'Generating...' : 'Regenerate'}
+                    </button>
+                  </label>
+                  <div className="flex items-center gap-2">
+                    <code className="flex-1 bg-black/50 px-3 py-2.5 rounded-xl text-xs font-mono text-gray-300 truncate border border-white/5 filter blur-sm hover:blur-none transition-all cursor-pointer" title="Hover to reveal">
+                      {apiKey}
+                    </code>
+                    <button
+                      onClick={() => copyToClipboard(apiKey, 'apikey')}
+                      className="p-2.5 bg-white/5 hover:bg-white/10 border border-white/5 rounded-xl transition-colors text-gray-400 hover:text-white"
+                    >
+                      {copiedKey === 'apikey' ? <FiCheck className="text-green-400" /> : <FiCopy />}
+                    </button>
+                  </div>
+                </div>
+
+                <div>
                   <label className="text-xs text-gray-500 font-mono mb-2 block uppercase tracking-wider">API Endpoint</label>
                   <div className="flex items-center gap-2">
                     <code className="flex-1 bg-black/50 px-3 py-2.5 rounded-xl text-xs font-mono text-gray-300 truncate border border-white/5">
@@ -377,6 +433,9 @@ export default function DashboardPage() {
 
         </div>
       </div>
+
+      {/* API Testing Panel */}
+      <ApiTestPanel />
     </div>
   );
 }
