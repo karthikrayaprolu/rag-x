@@ -14,10 +14,7 @@ import {
   FiMessageSquare,
   FiDatabase,
   FiLock,
-  FiCode,
-  FiShield,
-  FiDollarSign,
-  FiFileText
+  FiFileText,
 } from 'react-icons/fi';
 
 export default function Navbar() {
@@ -41,6 +38,7 @@ export default function Navbar() {
     try {
       await logout();
       setProfileMenuOpen(false);
+      setActiveDropdown(null);
       router.push('/');
     } catch (error) {
       console.error('Logout error:', error);
@@ -84,7 +82,6 @@ export default function Navbar() {
         initial={{ y: -100 }}
         animate={{ y: 0 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
-        onMouseLeave={() => setActiveDropdown(null)}
       >
         <div className="container mx-auto px-4 lg:px-8">
           <div className="flex items-center justify-between h-20">
@@ -109,6 +106,7 @@ export default function Navbar() {
               <div
                 className="relative"
                 onMouseEnter={() => setActiveDropdown('platform')}
+                onMouseLeave={() => setActiveDropdown(null)}
               >
                 <button
                   className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 flex items-center gap-1 ${activeDropdown === 'platform' ? 'text-white bg-white/10' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
@@ -183,7 +181,10 @@ export default function Navbar() {
                         <div className="p-2 space-y-1">
                           <Link
                             href="/dashboard"
-                            onClick={() => setProfileMenuOpen(false)}
+                            onClick={() => {
+                              setProfileMenuOpen(false);
+                              setActiveDropdown(null);
+                            }}
                             className="flex items-center gap-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-white/5 rounded-xl transition-all"
                           >
                             <FiUser className="w-4 h-4" />
@@ -191,7 +192,10 @@ export default function Navbar() {
                           </Link>
                           <Link
                             href="/chat"
-                            onClick={() => setProfileMenuOpen(false)}
+                            onClick={() => {
+                              setProfileMenuOpen(false);
+                              setActiveDropdown(null);
+                            }}
                             className="flex items-center gap-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-white/5 rounded-xl transition-all"
                           >
                             <FiMessageSquare className="w-4 h-4" />
@@ -275,14 +279,14 @@ export default function Navbar() {
                       A high-performance Multi-Tenant Retrieval-Augmented Generation platform. Parse, Index, and Chat with your documents securely.
                     </p>
                     <div className="mt-6">
-                      <Link href="/auth" className="text-sm font-semibold text-purple-400 hover:text-purple-300 flex items-center gap-1">
+                      <Link href="/auth" onClick={() => setActiveDropdown(null)} className="text-sm font-semibold text-purple-400 hover:text-purple-300 flex items-center gap-1">
                         Get Started <FiChevronDown className="rotate-[-90deg]" />
                       </Link>
                     </div>
                   </div>
                   <div className="col-span-3 grid grid-cols-2 gap-x-12 gap-y-8">
                     {platformFeatures.map((feature, idx) => (
-                      <Link key={idx} href={feature.href} className="group flex gap-4">
+                      <Link key={idx} href={feature.href} onClick={() => setActiveDropdown(null)} className="group flex gap-4">
                         <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-white/10 transition-colors">
                           <feature.icon className="w-6 h-6 text-purple-400 group-hover:text-purple-300" />
                         </div>
@@ -319,7 +323,11 @@ export default function Navbar() {
                     <Link
                       key={item.title}
                       href={item.href}
-                      onClick={() => setMobileMenuOpen(false)}
+                      onClick={() => {
+                        setMobileMenuOpen(false);
+                        setActiveDropdown(null);
+                        setProfileMenuOpen(false);
+                      }}
                       className="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5"
                     >
                       <item.icon className="w-5 h-5 text-purple-400" />
@@ -330,21 +338,21 @@ export default function Navbar() {
 
                 <div className="h-px bg-white/10 my-2" />
 
-                <Link href="/developers" onClick={() => setMobileMenuOpen(false)} className="text-xl font-bold text-white hover:text-gray-300">Developers</Link>
-                <Link href="/security" onClick={() => setMobileMenuOpen(false)} className="text-xl font-bold text-white hover:text-gray-300">Security</Link>
-                <Link href="/pricing" onClick={() => setMobileMenuOpen(false)} className="text-xl font-bold text-white hover:text-gray-300">Pricing</Link>
+                <Link href="/developers" onClick={() => { setMobileMenuOpen(false); setActiveDropdown(null); setProfileMenuOpen(false); }} className="text-xl font-bold text-white hover:text-gray-300">Developers</Link>
+                <Link href="/security" onClick={() => { setMobileMenuOpen(false); setActiveDropdown(null); setProfileMenuOpen(false); }} className="text-xl font-bold text-white hover:text-gray-300">Security</Link>
+                <Link href="/pricing" onClick={() => { setMobileMenuOpen(false); setActiveDropdown(null); setProfileMenuOpen(false); }} className="text-xl font-bold text-white hover:text-gray-300">Pricing</Link>
 
                 <div className="h-px bg-white/10 my-4" />
 
                 {user ? (
                   <div className="space-y-4">
-                    <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)} className="block w-full text-center py-3 bg-white/10 rounded-xl text-white font-bold">Dashboard</Link>
+                    <Link href="/dashboard" onClick={() => { setMobileMenuOpen(false); setActiveDropdown(null); setProfileMenuOpen(false); }} className="block w-full text-center py-3 bg-white/10 rounded-xl text-white font-bold">Dashboard</Link>
                     <button onClick={handleLogout} className="block w-full text-center py-3 text-red-400 font-medium">Sign Out</button>
                   </div>
                 ) : (
                   <div className="flex flex-col gap-4">
-                    <Link href="/auth" onClick={() => setMobileMenuOpen(false)} className="w-full py-4 bg-white/5 rounded-full text-center text-white font-bold">Sign In</Link>
-                    <Link href="/auth" onClick={() => setMobileMenuOpen(false)} className="w-full py-4 bg-white rounded-full text-center text-black font-bold">Get Started</Link>
+                    <Link href="/auth" onClick={() => { setMobileMenuOpen(false); setActiveDropdown(null); setProfileMenuOpen(false); }} className="w-full py-4 bg-white/5 rounded-full text-center text-white font-bold">Sign In</Link>
+                    <Link href="/auth" onClick={() => { setMobileMenuOpen(false); setActiveDropdown(null); setProfileMenuOpen(false); }} className="w-full py-4 bg-white rounded-full text-center text-black font-bold">Get Started</Link>
                   </div>
                 )}
               </div>
