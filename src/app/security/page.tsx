@@ -18,14 +18,14 @@ export default function SecurityPage() {
                     animate={{ opacity: 1, y: 0 }}
                     className="max-w-4xl mx-auto text-center mb-20"
                 >
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-blue-400 text-sm font-medium mb-6">
-                        <FiShield className="w-4 h-4" />
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-blue-400 text-xs font-medium mb-8 uppercase tracking-widest hover:bg-white/10 transition-colors cursor-default">
+                        <FiShield className="w-3 h-3" />
                         <span>Uncompromising Security</span>
                     </div>
-                    <h1 className="text-5xl lg:text-7xl font-bold mb-6 tracking-tight">
+                    <h1 className="text-5xl md:text-7xl font-bold mb-8 tracking-tight bg-clip-text text-transparent bg-gradient-to-b from-white via-white to-gray-500">
                         Built for Trust
                     </h1>
-                    <p className="text-xl text-gray-400 leading-relaxed max-w-2xl mx-auto">
+                    <p className="text-xl text-gray-400 leading-relaxed max-w-2xl mx-auto font-light">
                         Security is not an afterthought. It's the foundation of everything we build.
                     </p>
                 </motion.div>

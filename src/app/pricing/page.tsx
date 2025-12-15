@@ -49,13 +49,13 @@ export default function PricingPage() {
                     animate={{ opacity: 1, y: 0 }}
                     className="max-w-4xl mx-auto text-center mb-20"
                 >
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-purple-400 text-sm font-medium mb-6">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-purple-400 text-xs font-medium mb-8 uppercase tracking-widest hover:bg-white/10 transition-colors cursor-default">
                         <span>Transparent Pricing</span>
                     </div>
-                    <h1 className="text-5xl lg:text-7xl font-bold mb-6 tracking-tight">
-                        Simple, Transparent Pricing
+                    <h1 className="text-5xl md:text-7xl font-bold mb-8 tracking-tight bg-clip-text text-transparent bg-gradient-to-b from-white via-white to-gray-500">
+                        Transparent Pricing
                     </h1>
-                    <p className="text-xl text-gray-400 leading-relaxed max-w-2xl mx-auto">
+                    <p className="text-xl text-gray-400 leading-relaxed max-w-2xl mx-auto font-light">
                         Choose the plan that's right for you. Change or cancel at any time.
                     </p>
                 </motion.div>
@@ -75,11 +75,10 @@ export default function PricingPage() {
                         <p className="text-gray-400 text-sm mb-8">Perfect for hobbyists and side projects.</p>
 
                         <button
-                            onClick={() => handleSubscribe(PRICE_IDS.STARTER)}
-                            disabled={loadingPriceId === PRICE_IDS.STARTER}
-                            className="w-full py-3 rounded-xl bg-white/10 hover:bg-white/20 transition-colors font-medium mb-8 disabled:opacity-50 disabled:cursor-not-allowed"
+                            disabled={true}
+                            className="w-full py-3 rounded-xl bg-white/5 border border-white/10 text-gray-400 font-medium mb-8 cursor-default"
                         >
-                            {loadingPriceId === PRICE_IDS.STARTER ? 'Redirecting...' : 'Get Started'}
+                            Current Plan
                         </button>
 
                         <div className="space-y-4 flex-grow">
@@ -135,7 +134,10 @@ export default function PricingPage() {
                         </div>
                         <p className="text-gray-400 text-sm mb-8">For teams and organizations.</p>
 
-                        <button className="w-full py-3 rounded-xl bg-white/10 hover:bg-white/20 transition-colors font-medium mb-8">
+                        <button
+                            onClick={() => window.location.href = 'mailto:karthikrayaprolu13@gmail.com'}
+                            className="w-full py-3 rounded-xl bg-white/10 hover:bg-white/20 transition-colors font-medium mb-8"
+                        >
                             Contact Sales
                         </button>
 

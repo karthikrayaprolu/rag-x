@@ -139,6 +139,14 @@ export default function Navbar() {
               >
                 Pricing
               </Link>
+
+              {/* Documentation */}
+              <Link
+                href="/documentation"
+                className="px-4 py-2 rounded-full text-sm font-medium text-gray-400 hover:text-white hover:bg-white/5 transition-all duration-300"
+              >
+                Documentation
+              </Link>
             </div>
 
             {/* Right Side: Auth */}
@@ -341,6 +349,7 @@ export default function Navbar() {
                 <Link href="/developers" onClick={() => { setMobileMenuOpen(false); setActiveDropdown(null); setProfileMenuOpen(false); }} className="text-xl font-bold text-white hover:text-gray-300">Developers</Link>
                 <Link href="/security" onClick={() => { setMobileMenuOpen(false); setActiveDropdown(null); setProfileMenuOpen(false); }} className="text-xl font-bold text-white hover:text-gray-300">Security</Link>
                 <Link href="/pricing" onClick={() => { setMobileMenuOpen(false); setActiveDropdown(null); setProfileMenuOpen(false); }} className="text-xl font-bold text-white hover:text-gray-300">Pricing</Link>
+                <Link href="/documentation" onClick={() => { setMobileMenuOpen(false); setActiveDropdown(null); setProfileMenuOpen(false); }} className="text-xl font-bold text-white hover:text-gray-300">Documentation</Link>
 
                 <div className="h-px bg-white/10 my-4" />
 

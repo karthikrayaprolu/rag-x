@@ -42,7 +42,7 @@ export default function Home() {
       };
 
       fetchStats();
-      
+
       // Refresh every 5 seconds for real-time updates
       const interval = setInterval(fetchStats, 5000);
       return () => clearInterval(interval);
@@ -136,12 +136,12 @@ export default function Home() {
                   // User is logged in - show dashboard button
                   <>
                     <Link href="/dashboard">
-                      <button className="group relative px-8 py-3 bg-white text-black font-semibold rounded-full overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-[0_0_30px_rgba(147,51,234,0.5)] active:scale-95">
+                      <button className="group relative px-8 py-3 bg-white text-black font-semibold rounded-full overflow-hidden transition-all duration-300  hover:shadow-[0_0_30px_rgba(147,51,234,0.5)] active:scale-95">
                         <span className="relative z-10">Go to Dashboard</span>
                       </button>
                     </Link>
                     <Link href="/chat">
-                      <button className="group relative px-8 py-3 bg-white text-black font-semibold rounded-full overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-[0_0_30px_rgba(147,51,234,0.5)] active:scale-95">
+                      <button className="group relative px-8 py-3 bg-white text-black font-semibold rounded-full overflow-hidden transition-all duration-300  hover:shadow-[0_0_30px_rgba(147,51,234,0.5)] active:scale-95">
                         <span className="relative z-10">Start Chatting</span>
                       </button>
                     </Link>
@@ -150,12 +150,12 @@ export default function Home() {
                   // User is not logged in - show auth buttons
                   <>
                     <Link href="/auth">
-                      <button className="group relative px-8 py-3 bg-white text-black font-semibold rounded-full overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-[0_0_30px_rgba(147,51,234,0.5)] active:scale-95">
+                      <button className="group relative px-8 py-3 bg-white text-black font-semibold rounded-full overflow-hidden transition-all duration-300  hover:shadow-[0_0_30px_rgba(147,51,234,0.5)] active:scale-95">
                         <span className="relative z-10">Get Started</span>
                       </button>
                     </Link>
                     <Link href="/auth">
-                      <button className="group relative px-8 py-3 bg-white text-black font-semibold rounded-full overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-[0_0_30px_rgba(147,51,234,0.5)] active:scale-95">
+                      <button className="group relative px-8 py-3 bg-white text-black font-semibold rounded-full overflow-hidden transition-all duration-300 hover:shadow-[0_0_30px_rgba(147,51,234,0.5)] active:scale-95">
                         <span className="relative z-10">Login</span>
                       </button>
                     </Link>

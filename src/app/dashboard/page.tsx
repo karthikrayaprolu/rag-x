@@ -378,20 +378,7 @@ export default function DashboardPage() {
               </h2>
 
               <div className="space-y-6">
-                <div>
-                  <label className="text-xs text-gray-500 font-mono mb-2 block uppercase tracking-wider">User ID</label>
-                  <div className="flex items-center gap-2">
-                    <code className="flex-1 bg-black/50 px-3 py-2.5 rounded-xl text-xs font-mono text-gray-300 truncate border border-white/5">
-                      {userId}
-                    </code>
-                    <button
-                      onClick={() => copyToClipboard(userId, 'uid')}
-                      className="p-2.5 bg-white/5 hover:bg-white/10 border border-white/5 rounded-xl transition-colors text-gray-400 hover:text-white"
-                    >
-                      {copiedKey === 'uid' ? <FiCheck className="text-green-400" /> : <FiCopy />}
-                    </button>
-                  </div>
-                </div>
+
 
                 <div>
                   <label className="text-xs text-gray-500 font-mono mb-2 block uppercase tracking-wider flex justify-between items-center">
