@@ -61,7 +61,7 @@ export default function DashboardPage() {
       // Show success alert
       Swal.fire({
         title: 'Payment Successful!',
-        text: 'Your subscription is now active. Welcome to the Pro plan!',
+        text: 'Your subscription is now active. Refreshing your plan details...',
         icon: 'success',
         confirmButtonText: 'Get Started',
         background: '#1a1a1a',
@@ -72,18 +72,28 @@ export default function DashboardPage() {
       // Remove success param from URL
       window.history.replaceState({}, '', '/dashboard');
       
-      // Fetch updated user profile
-      fetchUserProfile();
+      // Fetch updated user profile after a short delay to allow webhook to process
+      setTimeout(() => {
+        fetchUserProfile();
+      }, 2000); // Wait 2 seconds for webhook to update database
+      
+      // Fetch again after 5 seconds in case first attempt was too early
+      setTimeout(() => {
+        fetchUserProfile();
+      }, 5000);
     }
   }, [searchParams]);
 
   const fetchUserProfile = async () => {
     if (authLoading || !user) return;
     try {
+      console.log('🔄 Fetching user profile...');
       const profile = await getUserProfile();
-      setUserPlan(profile.plan || 'free');
+      const newPlan = profile.plan || 'free';
+      console.log('✅ User plan:', newPlan);
+      setUserPlan(newPlan);
     } catch (error) {
-      console.error('Failed to fetch user profile:', error);
+      console.error('❌ Failed to fetch user profile:', error);
     }
   };
 
@@ -213,12 +223,20 @@ export default function DashboardPage() {
               <FiCheck className="w-5 h-5 text-green-400" />
               <div>
                 <p className="text-green-400 font-medium">Payment Successful!</p>
-                <p className="text-sm text-gray-400">Your subscription is now active</p>
+                <p className="text-sm text-gray-400">Your subscription is now active. If your plan hasn't updated, click refresh.</p>
               </div>
             </div>
-            <button onClick={() => setShowSuccessBanner(false)} className="text-gray-400 hover:text-white">
-              <FiX className="w-5 h-5" />
-            </button>
+            <div className="flex items-center gap-2">
+              <button 
+                onClick={() => fetchUserProfile()} 
+                className="px-3 py-1 bg-green-500/20 hover:bg-green-500/30 rounded-lg text-green-400 text-sm transition-colors"
+              >
+                Refresh Plan
+              </button>
+              <button onClick={() => setShowSuccessBanner(false)} className="text-gray-400 hover:text-white">
+                <FiX className="w-5 h-5" />
+              </button>
+            </div>
           </div>
         )}
 
