@@ -71,7 +71,6 @@ async function apiRequest<T>(
   }
 
   const url = `${API_BASE_URL}${endpoint}`;
-  console.log(`API Request: ${options.method || 'GET'} ${url}`);
 
   for (let attempt = 0; attempt <= retries; attempt++) {
     try {
@@ -96,7 +95,6 @@ async function apiRequest<T>(
 
         // Retry on 5xx errors (server errors)
         if (attempt < retries) {
-          console.log(`Retrying... (${attempt + 1}/${retries})`);
           await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1)));
           continue;
         }
@@ -105,7 +103,6 @@ async function apiRequest<T>(
       }
 
       const data = await response.json();
-      console.log(`API Success: ${options.method || 'GET'} ${endpoint}`);
       return data;
     } catch (error: any) {
       if (attempt === retries) {
@@ -115,7 +112,6 @@ async function apiRequest<T>(
 
       // Network errors - retry
       if (error.name === 'TypeError' || error.message.includes('fetch')) {
-        console.log(`Network error, retrying... (${attempt + 1}/${retries})`);
         await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1)));
         continue;
       }
@@ -414,10 +410,8 @@ export async function healthCheck(): Promise<{ status: string }> {
     }
 
     const data = await response.json();
-    console.log('✅ Backend health check passed:', data);
     return data;
   } catch (error) {
-    console.error('❌ Backend health check failed:', error);
     throw error;
   }
 }

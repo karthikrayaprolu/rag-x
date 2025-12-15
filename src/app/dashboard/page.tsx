@@ -87,20 +87,11 @@ function DashboardContent() {
   const fetchUserProfile = async () => {
     if (authLoading || !user) return;
     try {
-      console.log('🔄 Fetching user profile for user:', user.uid);
       const profile = await getUserProfile();
       const newPlan = profile.plan || 'free';
-      console.log('✅ User profile received:', profile);
-      console.log('✅ User plan:', newPlan);
-      console.log('✅ Subscription status:', profile.subscription_status);
       setUserPlan(newPlan);
-      
-      // Force UI update
-      if (newPlan !== userPlan) {
-        console.log(`📊 Plan changed from ${userPlan} to ${newPlan}`);
-      }
     } catch (error) {
-      console.error('❌ Failed to fetch user profile:', error);
+      console.error('Failed to fetch user profile:', error);
     }
   };
 
@@ -112,9 +103,7 @@ function DashboardContent() {
 
     setIsLoadingStats(true);
     try {
-      console.log('📊 Fetching upload stats...');
       const uploadStats = await getUploadStats();
-      console.log('✅ Stats fetched successfully:', uploadStats);
 
       setStats(prev => ({
         ...prev,
@@ -123,7 +112,6 @@ function DashboardContent() {
         totalDocuments: uploadStats.total_documents || 0,
       }));
     } catch (error: any) {
-      console.error('❌ Failed to fetch stats:', error);
       // Don't show error to user, just keep previous stats
     } finally {
       setIsLoadingStats(false);
@@ -157,12 +145,9 @@ function DashboardContent() {
   const checkBackendHealth = async () => {
     setBackendStatus('checking');
     try {
-      console.log('🏥 Checking backend health...');
       await healthCheck();
-      console.log('✅ Backend is online');
       setBackendStatus('online');
     } catch (error) {
-      console.error('❌ Backend health check failed:', error);
       setBackendStatus('offline');
     }
   };
