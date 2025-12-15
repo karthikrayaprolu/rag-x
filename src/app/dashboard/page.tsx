@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
@@ -25,7 +25,7 @@ import { GlowingEffect } from '@/components/ui/glowing-effect';
 import ApiTestPanel from '@/components/ApiTestPanel';
 import Swal from 'sweetalert2';
 
-export default function DashboardPage() {
+function DashboardContent() {
   const { user, loading: authLoading, userProfile } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -507,5 +507,20 @@ export default function DashboardPage() {
       {/* API Testing Panel */}
       <ApiTestPanel />
     </div>
+  );
+}
+
+export default function DashboardPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-black text-white pt-32 pb-16 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-400">Loading dashboard...</p>
+        </div>
+      </div>
+    }>
+      <DashboardContent />
+    </Suspense>
   );
 }
