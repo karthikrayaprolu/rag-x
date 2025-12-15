@@ -3,8 +3,8 @@
 import { motion } from 'framer-motion';
 import { FiCheck, FiX } from 'react-icons/fi';
 import { CardSpotlight } from '@/components/ui/card-spotlight';
-import { createCheckoutSession } from '@/lib/api';
-import { useState } from 'react';
+import { createCheckoutSession, getUserProfile, type UserProfile } from '@/lib/api';
+import { useState, useEffect } from 'react';
 
 const PRICE_IDS = {
     STARTER: 'price_1SdltnRu2lPW20DirecI5Ata',
@@ -13,6 +13,22 @@ const PRICE_IDS = {
 
 export default function PricingPage() {
     const [loadingPriceId, setLoadingPriceId] = useState<string | null>(null);
+    const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+    const [isLoadingProfile, setIsLoadingProfile] = useState(true);
+
+    useEffect(() => {
+        const fetchProfile = async () => {
+            try {
+                const profile = await getUserProfile();
+                setUserProfile(profile);
+            } catch (error) {
+                console.log('User not logged in or failed to fetch profile');
+            } finally {
+                setIsLoadingProfile(false);
+            }
+        };
+        fetchProfile();
+    }, []);
 
     const handleSubscribe = async (priceId: string) => {
         try {
@@ -76,9 +92,12 @@ export default function PricingPage() {
 
                         <button
                             disabled={true}
-                            className="w-full py-3 rounded-xl bg-white/5 border border-white/10 text-gray-400 font-medium mb-8 cursor-default"
+                            className={`w-full py-3 rounded-xl border font-medium mb-8 cursor-default ${userProfile?.plan === 'pro'
+                                ? 'bg-white/5 border-white/10 text-gray-400'
+                                : 'bg-white/10 border-white/20 text-white'
+                                }`}
                         >
-                            Current Plan
+                            {userProfile?.plan === 'pro' ? 'Included' : 'Current Plan'}
                         </button>
 
                         <div className="space-y-4 flex-grow">
@@ -106,10 +125,19 @@ export default function PricingPage() {
 
                         <button
                             onClick={() => handleSubscribe(PRICE_IDS.PRO)}
-                            disabled={loadingPriceId === PRICE_IDS.PRO}
-                            className="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-700 transition-colors font-medium mb-8 disabled:opacity-50 disabled:cursor-not-allowed"
+                            disabled={loadingPriceId === PRICE_IDS.PRO || userProfile?.plan === 'pro' || isLoadingProfile}
+                            className={`w-full py-3 rounded-xl font-medium mb-8 transition-colors ${userProfile?.plan === 'pro'
+                                    ? 'bg-green-500/20 text-green-400 border border-green-500/50 cursor-default'
+                                    : 'bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50 disabled:cursor-not-allowed'
+                                }`}
                         >
-                            {loadingPriceId === PRICE_IDS.PRO ? 'Redirecting...' : 'Get Started'}
+                            {loadingPriceId === PRICE_IDS.PRO
+                                ? 'Redirecting...'
+                                : isLoadingProfile
+                                    ? 'Loading...'
+                                    : userProfile?.plan === 'pro'
+                                        ? 'Current Plan'
+                                        : 'Get Started'}
                         </button>
 
                         <div className="space-y-4 flex-grow">
