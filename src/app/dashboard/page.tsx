@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import {
   FiBarChart2,
   FiFileText,
@@ -14,21 +14,25 @@ import {
   FiCheck,
   FiRefreshCw,
   FiActivity,
-  FiServer
+  FiServer,
+  FiX
 } from 'react-icons/fi';
 import { PiBrain } from 'react-icons/pi';
-import { getUploadStats, healthCheck, testApiConnection, getApiBaseUrl, getApiKey, generateApiKey } from '@/lib/api';
+import { getUploadStats, healthCheck, testApiConnection, getApiBaseUrl, getApiKey, generateApiKey, getUserProfile } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import DashboardUpload from '@/components/DashboardUpload';
 import { GlowingEffect } from '@/components/ui/glowing-effect';
 import ApiTestPanel from '@/components/ApiTestPanel';
+import Swal from 'sweetalert2';
 
 export default function DashboardPage() {
   const { user, loading: authLoading, userProfile } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const [userId, setUserId] = useState('');
   const [userEmail, setUserEmail] = useState('');
+  const [userPlan, setUserPlan] = useState('free');
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [backendStatus, setBackendStatus] = useState<'checking' | 'online' | 'offline'>('checking');
   const [dataSources, setDataSources] = useState<Array<{ name: string; type: string; status: string; date: string; }>>([]);
@@ -40,6 +44,7 @@ export default function DashboardPage() {
   const [apiKey, setApiKey] = useState('Loading...');
   const [isRegeneratingKey, setIsRegeneratingKey] = useState(false);
   const [isLoadingStats, setIsLoadingStats] = useState(true);
+  const [showSuccessBanner, setShowSuccessBanner] = useState(false);
 
   // Auth guard
   useEffect(() => {
@@ -47,6 +52,40 @@ export default function DashboardPage() {
       router.push('/auth');
     }
   }, [user, authLoading, router]);
+
+  // Check for success parameter from Stripe redirect
+  useEffect(() => {
+    const success = searchParams.get('success');
+    if (success === 'true') {
+      setShowSuccessBanner(true);
+      // Show success alert
+      Swal.fire({
+        title: 'Payment Successful!',
+        text: 'Your subscription is now active. Welcome to the Pro plan!',
+        icon: 'success',
+        confirmButtonText: 'Get Started',
+        background: '#1a1a1a',
+        color: '#fff',
+        confirmButtonColor: '#3b82f6',
+      });
+      
+      // Remove success param from URL
+      window.history.replaceState({}, '', '/dashboard');
+      
+      // Fetch updated user profile
+      fetchUserProfile();
+    }
+  }, [searchParams]);
+
+  const fetchUserProfile = async () => {
+    if (authLoading || !user) return;
+    try {
+      const profile = await getUserProfile();
+      setUserPlan(profile.plan || 'free');
+    } catch (error) {
+      console.error('Failed to fetch user profile:', error);
+    }
+  };
 
   const fetchStats = async () => {
     if (authLoading || !user) {
@@ -121,6 +160,7 @@ export default function DashboardPage() {
     setUserEmail(storedEmail);
 
     checkBackendHealth();
+    fetchUserProfile();
 
     const timer = setTimeout(() => {
       fetchStats();
@@ -166,11 +206,36 @@ export default function DashboardPage() {
       </div>
 
       <div className="container mx-auto px-4 lg:px-8 max-w-7xl">
+        {/* Success Banner */}
+        {showSuccessBanner && (
+          <div className="mb-6 p-4 bg-green-500/10 border border-green-500/20 rounded-xl flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <FiCheck className="w-5 h-5 text-green-400" />
+              <div>
+                <p className="text-green-400 font-medium">Payment Successful!</p>
+                <p className="text-sm text-gray-400">Your subscription is now active</p>
+              </div>
+            </div>
+            <button onClick={() => setShowSuccessBanner(false)} className="text-gray-400 hover:text-white">
+              <FiX className="w-5 h-5" />
+            </button>
+          </div>
+        )}
+
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10">
           <div>
             <h1 className="text-3xl font-bold text-white mb-1">Dashboard</h1>
             <p className="text-gray-400">Welcome back, {userEmail}</p>
+            <div className="mt-2">
+              <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium ${
+                userPlan === 'pro' ? 'bg-blue-500/10 border border-blue-500/20 text-blue-400' :
+                userPlan === 'business' ? 'bg-purple-500/10 border border-purple-500/20 text-purple-400' :
+                'bg-gray-500/10 border border-gray-500/20 text-gray-400'
+              }`}>
+                {userPlan.toUpperCase()} PLAN
+              </span>
+            </div>
           </div>
           <div className="flex items-center gap-3">
             <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full border ${backendStatus === 'online'

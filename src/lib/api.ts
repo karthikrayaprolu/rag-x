@@ -133,6 +133,23 @@ export interface ApiKeyResponse {
   api_key: string;
 }
 
+export interface UserProfile {
+  uid: string;
+  email: string;
+  display_name: string | null;
+  photo_url: string | null;
+  email_verified: boolean;
+  plan: string;
+  subscription_status: string | null;
+}
+
+/**
+ * Get current user profile with subscription details
+ */
+export async function getUserProfile(): Promise<UserProfile> {
+  return apiRequest<UserProfile>('/auth/me');
+}
+
 /**
  * Get the current API Key for the user
  */
