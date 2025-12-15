@@ -1,0 +1,257 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useAuth } from '@/contexts/AuthContext';
+import { useRouter } from 'next/navigation';
+import { FiUser, FiSave, FiImage, FiCheck, FiLoader } from 'react-icons/fi';
+import { updateUserProfile, getUploadStats, deleteDocument, deleteAllDocuments } from '@/lib/api';
+
+
+const DEFAULT_AVATARS = [
+    'https://api.dicebear.com/7.x/avataaars/svg?seed=Felix',
+    'https://api.dicebear.com/7.x/avataaars/svg?seed=Aneka',
+    'https://api.dicebear.com/7.x/avataaars/svg?seed=Zoe',
+    'https://api.dicebear.com/7.x/avataaars/svg?seed=Jack',
+    'https://api.dicebear.com/7.x/avataaars/svg?seed=Sam',
+    'https://api.dicebear.com/7.x/avataaars/svg?seed=Milo',
+    'https://api.dicebear.com/7.x/avataaars/svg?seed=Buster',
+    'https://api.dicebear.com/7.x/avataaars/svg?seed=Lola',
+    'https://api.dicebear.com/7.x/bottts/svg?seed=123',
+    'https://api.dicebear.com/7.x/shapes/svg?seed=Cool',
+];
+
+export default function SettingsPage() {
+    const { user, userProfile, refreshProfile } = useAuth();
+    const router = useRouter();
+    const [loading, setLoading] = useState(false);
+    const [successMessage, setSuccessMessage] = useState<string | null>(null);
+    const [displayName, setDisplayName] = useState('');
+    const [photoUrl, setPhotoUrl] = useState('');
+    const [customUrl, setCustomUrl] = useState('');
+
+    useEffect(() => {
+        if (!user) {
+            router.push('/auth');
+            return;
+        }
+
+        if (userProfile) {
+            setDisplayName(userProfile.display_name || '');
+            setPhotoUrl(userProfile.photo_url || '');
+        }
+    }, [user, userProfile, router]);
+
+    const handleSave = async () => {
+        setLoading(true);
+        setSuccessMessage(null);
+        try {
+            await updateUserProfile({
+                display_name: displayName,
+                photo_url: photoUrl
+            });
+            await refreshProfile(); // Refresh context
+            setSuccessMessage('Profile updated successfully!');
+            setTimeout(() => setSuccessMessage(null), 3000);
+        } catch (error) {
+            console.error('Failed to update profile:', error);
+            // Handle error appropriately
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleCustomUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setCustomUrl(e.target.value);
+        if (e.target.value) {
+            setPhotoUrl(e.target.value);
+        }
+    };
+
+    return (
+        <div className="min-h-screen bg-black text-white selection:bg-purple-500/30">
+
+
+            <div className="container mx-auto px-4 pt-32 pb-20 max-w-4xl">
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mb-12"
+                >
+                    <h1 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-500 mb-4">
+                        Account Settings
+                    </h1>
+                    <p className="text-gray-400">Manage your profile and preferences.</p>
+                </motion.div>
+
+                <div className="grid md:grid-cols-3 gap-8">
+                    {/* Main Settings Panel */}
+                    <div className="md:col-span-2 space-y-8">
+
+                        {/* Profile Card */}
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.1 }}
+                            className="p-8 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-xl"
+                        >
+                            <h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
+                                <FiUser className="text-purple-400" />
+                                Profile Information
+                            </h2>
+
+                            <div className="space-y-6">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-400 mb-2">
+                                        Display Name
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={displayName}
+                                        onChange={(e) => setDisplayName(e.target.value)}
+                                        className="w-full px-4 py-3 rounded-xl bg-black/50 border border-white/10 text-white placeholder-gray-600 focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 transition-all"
+                                        placeholder="Enter your name"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-400 mb-2">
+                                        Email Address
+                                    </label>
+                                    <input
+                                        type="email"
+                                        value={user?.email || ''}
+                                        disabled
+                                        className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/5 text-gray-500 cursor-not-allowed"
+                                    />
+                                    <p className="text-xs text-gray-600 mt-2">Email address cannot be changed.</p>
+                                </div>
+                            </div>
+                        </motion.div>
+
+                        {/* Avatar Selection */}
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.2 }}
+                            className="p-8 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-xl"
+                        >
+                            <h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
+                                <FiImage className="text-purple-400" />
+                                Profile Picture
+                            </h2>
+
+                            <div className="flex flex-col md:flex-row gap-8 items-start">
+                                {/* Current Avatar Preview */}
+                                <div className="flex flex-col items-center gap-4">
+                                    <div className="w-32 h-32 rounded-full overflow-hidden border-2 border-purple-500/30 bg-white/5 p-1">
+                                        <div className="w-full h-full rounded-full overflow-hidden bg-black">
+                                            {photoUrl ? (
+                                                <img src={photoUrl} alt="Profile" className="w-full h-full object-cover" />
+                                            ) : (
+                                                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-indigo-500/20 to-purple-500/20 text-purple-400">
+                                                    <FiUser className="w-12 h-12" />
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                    <span className="text-xs text-gray-500">Current Avatar</span>
+                                </div>
+
+                                {/* Custom URL & Defaults */}
+                                <div className="flex-1 space-y-6">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-400 mb-2">
+                                            Custom Image URL
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={customUrl}
+                                            onChange={handleCustomUrlChange}
+                                            placeholder="https://example.com/avatar.png"
+                                            className="w-full px-4 py-2 rounded-xl bg-black/50 border border-white/10 text-white placeholder-gray-600 text-sm focus:outline-none focus:border-purple-500/50"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-400 mb-3">
+                                            Or choose a default avatar
+                                        </label>
+                                        <div className="grid grid-cols-5 gap-3">
+                                            {DEFAULT_AVATARS.map((url, index) => (
+                                                <button
+                                                    key={index}
+                                                    onClick={() => {
+                                                        setPhotoUrl(url);
+                                                        setCustomUrl('');
+                                                    }}
+                                                    className={`aspect-square rounded-full overflow-hidden border-2 transition-all ${photoUrl === url
+                                                        ? 'border-purple-500 scale-110 shadow-lg shadow-purple-500/20'
+                                                        : 'border-transparent hover:border-white/20 hover:scale-105'
+                                                        }`}
+                                                >
+                                                    <img src={url} alt={`Avatar ${index + 1}`} className="w-full h-full object-cover bg-black" />
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </motion.div>
+
+                        {/* Save Button */}
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.3 }}
+                            className="flex items-center gap-4"
+                        >
+                            <button
+                                onClick={handleSave}
+                                disabled={loading}
+                                className="px-8 py-3 rounded-full bg-blue-600 hover:bg-blue-500 text-white font-medium transition-all shadow-lg hover:shadow-blue-500/25 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                            >
+                                {loading ? <FiLoader className="animate-spin" /> : <FiSave />}
+                                {loading ? 'Saving...' : 'Save Changes'}
+                            </button>
+
+                            <AnimatePresence>
+                                {successMessage && (
+                                    <motion.div
+                                        initial={{ opacity: 0, x: -10, scale: 0.95 }}
+                                        animate={{ opacity: 1, x: 0, scale: 1 }}
+                                        exit={{ opacity: 0, x: 10, scale: 0.95 }}
+                                        className="px-5 py-2.5 rounded-xl bg-green-500/10 border border-green-500/20 text-green-400 text-sm font-medium flex items-center gap-2 shadow-[0_0_20px_rgba(74,222,128,0.15)] backdrop-blur-md"
+                                    >
+                                        <FiCheck className="w-4 h-4" />
+                                        {successMessage}
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+                        </motion.div>
+
+                    </div>
+
+                    {/* Sidebar/Stats (Optional) */}
+                    <div className="hidden md:block">
+                        <div className="sticky top-32 space-y-6">
+                            <div className="p-6 rounded-3xl bg-gradient-to-br from-indigo-900/20 to-purple-900/20 border border-white/5">
+                                <h3 className="text-lg font-semibold mb-2 text-white">Your Plan</h3>
+                                <p className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400 capitalize mb-4">
+                                    {userProfile?.plan || 'Free'}
+                                </p>
+                                <button
+                                    onClick={() => router.push('/pricing')}
+                                    className="text-sm text-gray-400 hover:text-white underline decoration-gray-600 hover:decoration-white transition-all"
+                                >
+                                    Manage Subscription
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    );
+}

@@ -68,15 +68,15 @@ function DashboardContent() {
         color: '#fff',
         confirmButtonColor: '#3b82f6',
       });
-      
+
       // Remove success param from URL
       window.history.replaceState({}, '', '/dashboard');
-      
+
       // Fetch updated user profile after a short delay to allow webhook to process
       setTimeout(() => {
         fetchUserProfile();
       }, 2000); // Wait 2 seconds for webhook to update database
-      
+
       // Fetch again after 5 seconds in case first attempt was too early
       setTimeout(() => {
         fetchUserProfile();
@@ -155,7 +155,7 @@ function DashboardContent() {
   useEffect(() => {
     if (authLoading || !user) return;
 
-    const storedUserId = userProfile?.userId || localStorage.getItem('user_id') || user.uid || '';
+    const storedUserId = userProfile?.uid || localStorage.getItem('user_id') || user.uid || '';
     const storedEmail = userProfile?.email || localStorage.getItem('user_email') || user.email || '';
 
     setUserId(storedUserId);
@@ -219,8 +219,8 @@ function DashboardContent() {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <button 
-                onClick={() => fetchUserProfile()} 
+              <button
+                onClick={() => fetchUserProfile()}
                 className="px-3 py-1 bg-green-500/20 hover:bg-green-500/30 rounded-lg text-green-400 text-sm transition-colors"
               >
                 Refresh Plan
@@ -238,11 +238,10 @@ function DashboardContent() {
             <h1 className="text-3xl font-bold text-white mb-1">Dashboard</h1>
             <p className="text-gray-400">Welcome back, {userEmail}</p>
             <div className="mt-2">
-              <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium ${
-                userPlan === 'pro' ? 'bg-blue-500/10 border border-blue-500/20 text-blue-400' :
-                userPlan === 'business' ? 'bg-purple-500/10 border border-purple-500/20 text-purple-400' :
-                'bg-gray-500/10 border border-gray-500/20 text-gray-400'
-              }`}>
+              <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium ${userPlan === 'pro' ? 'bg-blue-500/10 border border-blue-500/20 text-blue-400' :
+                  userPlan === 'business' ? 'bg-purple-500/10 border border-purple-500/20 text-purple-400' :
+                    'bg-gray-500/10 border border-gray-500/20 text-gray-400'
+                }`}>
                 {userPlan.toUpperCase()} PLAN
               </span>
             </div>

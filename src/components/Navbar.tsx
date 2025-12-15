@@ -109,7 +109,7 @@ export default function Navbar() {
                 onMouseLeave={() => setActiveDropdown(null)}
               >
                 <button
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 flex items-center gap-1 ${activeDropdown === 'platform' ? 'text-white bg-white/10' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 flex items-center gap-1 ${activeDropdown === 'platform' ? 'text-white' : 'text-gray-400 hover:text-white'}`}
                 >
                   Platform
                   <FiChevronDown className={`w-4 h-4 transition-transform duration-300 ${activeDropdown === 'platform' ? 'rotate-180' : ''}`} />
@@ -119,7 +119,7 @@ export default function Navbar() {
               {/* Developers */}
               <Link
                 href="/developers"
-                className="px-4 py-2 rounded-full text-sm font-medium text-gray-400 hover:text-white hover:bg-white/5 transition-all duration-300"
+                className="px-4 py-2 rounded-full text-sm font-medium text-gray-400 hover:text-white transition-all duration-300"
               >
                 Developers
               </Link>
@@ -127,7 +127,7 @@ export default function Navbar() {
               {/* Security */}
               <Link
                 href="/security"
-                className="px-4 py-2 rounded-full text-sm font-medium text-gray-400 hover:text-white hover:bg-white/5 transition-all duration-300"
+                className="px-4 py-2 rounded-full text-sm font-medium text-gray-400 hover:text-white transition-all duration-300"
               >
                 Security
               </Link>
@@ -135,7 +135,7 @@ export default function Navbar() {
               {/* Pricing */}
               <Link
                 href="/pricing"
-                className="px-4 py-2 rounded-full text-sm font-medium text-gray-400 hover:text-white hover:bg-white/5 transition-all duration-300"
+                className="px-4 py-2 rounded-full text-sm font-medium text-gray-400 hover:text-white transition-all duration-300"
               >
                 Pricing
               </Link>
@@ -143,7 +143,7 @@ export default function Navbar() {
               {/* Documentation */}
               <Link
                 href="/documentation"
-                className="px-4 py-2 rounded-full text-sm font-medium text-gray-400 hover:text-white hover:bg-white/5 transition-all duration-300"
+                className="px-4 py-2 rounded-full text-sm font-medium text-gray-400 hover:text-white transition-all duration-300"
               >
                 Documentation
               </Link>
@@ -164,11 +164,15 @@ export default function Navbar() {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                   >
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center shadow-inner">
-                      <FiUser className="w-4 h-4 text-white" />
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center shadow-inner overflow-hidden">
+                      {userProfile?.photo_url ? (
+                        <img src={userProfile.photo_url} alt="Profile" className="w-full h-full object-cover" />
+                      ) : (
+                        <FiUser className="w-4 h-4 text-white" />
+                      )}
                     </div>
                     <span className="text-white font-medium text-sm">
-                      {userProfile?.name || user.email?.split('@')[0] || 'User'}
+                      {userProfile?.display_name || user.email?.split('@')[0] || 'User'}
                     </span>
                   </motion.button>
 
@@ -183,7 +187,7 @@ export default function Navbar() {
                         transition={{ duration: 0.2 }}
                       >
                         <div className="p-5 border-b border-white/5 bg-white/5">
-                          <p className="text-white font-semibold">{userProfile?.name || 'User'}</p>
+                          <p className="text-white font-semibold">{userProfile?.display_name || 'User'}</p>
                           <p className="text-gray-400 text-xs mt-1 truncate">{user.email}</p>
                         </div>
                         <div className="p-2 space-y-1">
@@ -208,6 +212,17 @@ export default function Navbar() {
                           >
                             <FiMessageSquare className="w-4 h-4" />
                             <span className="text-sm">Chat</span>
+                          </Link>
+                          <Link
+                            href="/settings"
+                            onClick={() => {
+                              setProfileMenuOpen(false);
+                              setActiveDropdown(null);
+                            }}
+                            className="flex items-center gap-3 px-4 py-3 text-gray-300 hover:text-white hover:bg-white/5 rounded-xl transition-all"
+                          >
+                            <FiUser className="w-4 h-4" />
+                            <span className="text-sm">Settings</span>
                           </Link>
                           <button
                             onClick={handleLogout}
@@ -356,6 +371,7 @@ export default function Navbar() {
                 {user ? (
                   <div className="space-y-4">
                     <Link href="/dashboard" onClick={() => { setMobileMenuOpen(false); setActiveDropdown(null); setProfileMenuOpen(false); }} className="block w-full text-center py-3 bg-white/10 rounded-xl text-white font-bold">Dashboard</Link>
+                    <Link href="/settings" onClick={() => { setMobileMenuOpen(false); setActiveDropdown(null); setProfileMenuOpen(false); }} className="block w-full text-center py-3 bg-white/5 hover:bg-white/10 rounded-xl text-white font-medium">Settings</Link>
                     <button onClick={handleLogout} className="block w-full text-center py-3 text-red-400 font-medium">Sign Out</button>
                   </div>
                 ) : (

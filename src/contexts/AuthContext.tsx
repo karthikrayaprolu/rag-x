@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import {
   User,
   createUserWithEmailAndPassword,
@@ -12,6 +12,7 @@ import {
   signInWithPopup,
 } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
+import { getUserProfile, type UserProfile } from '@/lib/api';
 
 interface AuthContextType {
   user: User | null;
@@ -21,13 +22,7 @@ interface AuthContextType {
   loginWithGoogle: () => Promise<void>;
   logout: () => Promise<void>;
   userProfile: UserProfile | null;
-}
-
-interface UserProfile {
-  userId: string;
-  email: string;
-  name: string;
-  createdAt: string;
+  refreshProfile: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -38,6 +33,7 @@ const AuthContext = createContext<AuthContextType>({
   loginWithGoogle: async () => { },
   logout: async () => { },
   userProfile: null,
+  refreshProfile: async () => { },
 });
 
 export const useAuth = () => useContext(AuthContext);
@@ -47,19 +43,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const refreshProfile = useCallback(async () => {
+    if (auth.currentUser) {
+      try {
+        const profile = await getUserProfile();
+        setUserProfile(profile);
+      } catch (error) {
+        console.error('Failed to fetch user profile:', error);
+        // Fallback to basic firebase info if API fails
+        setUserProfile({
+          uid: auth.currentUser.uid,
+          email: auth.currentUser.email || '',
+          display_name: auth.currentUser.displayName,
+          photo_url: auth.currentUser.photoURL,
+          email_verified: auth.currentUser.emailVerified,
+          plan: 'free',
+          subscription_status: null
+        });
+      }
+    } else {
+      setUserProfile(null);
+    }
+  }, []);
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setUser(user);
 
       if (user) {
-        // Create profile from Firebase Auth data only (no Firestore needed)
-        const profile: UserProfile = {
-          userId: user.uid,
-          email: user.email || '',
-          name: user.displayName || 'User',
-          createdAt: user.metadata.creationTime || new Date().toISOString(),
-        };
-        setUserProfile(profile);
+        await refreshProfile();
 
         // Store in localStorage for quick access
         localStorage.setItem('user_id', user.uid);
@@ -76,29 +88,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
 
     return unsubscribe;
-  }, []);
+  }, [refreshProfile]);
 
   const signup = async (email: string, password: string, name: string) => {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
-      // Update display name
+      // Update display name in Firebase
       await updateProfile(user, { displayName: name });
 
-      // Create user profile from Auth data
-      const userProfile: UserProfile = {
-        userId: user.uid,
-        email,
-        name,
-        createdAt: new Date().toISOString(),
-      };
+      // Initial profile state
+      await refreshProfile();
 
       // Store in localStorage
       localStorage.setItem('user_id', user.uid);
       localStorage.setItem('user_email', email);
 
-      setUserProfile(userProfile);
     } catch (error: any) {
       console.error('Signup error:', error);
       throw new Error(error.message || 'Failed to create account');
@@ -146,15 +152,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
 
-      // Create profile from Firebase Auth data
-      const profile: UserProfile = {
-        userId: user.uid,
-        email: user.email || '',
-        name: user.displayName || 'User',
-        createdAt: user.metadata.creationTime || new Date().toISOString(),
-      };
-
-      setUserProfile(profile);
+      await refreshProfile();
 
       // Store in localStorage
       localStorage.setItem('user_id', user.uid);
@@ -207,6 +205,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     loginWithGoogle,
     logout,
     userProfile,
+    refreshProfile
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

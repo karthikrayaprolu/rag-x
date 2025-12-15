@@ -146,6 +146,21 @@ export async function getUserProfile(): Promise<UserProfile> {
   return apiRequest<UserProfile>('/auth/me');
 }
 
+export interface UserProfileUpdate {
+  display_name?: string;
+  photo_url?: string;
+}
+
+/**
+ * Update current user profile
+ */
+export async function updateUserProfile(data: UserProfileUpdate): Promise<{ message: string }> {
+  return apiRequest('/auth/me', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
 /**
  * Get the current API Key for the user
  */
