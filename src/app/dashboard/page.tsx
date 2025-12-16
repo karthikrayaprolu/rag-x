@@ -18,7 +18,7 @@ import {
   FiX
 } from 'react-icons/fi';
 import { PiBrain } from 'react-icons/pi';
-import { getUploadStats, healthCheck, testApiConnection, getApiBaseUrl, getApiKey, generateApiKey, getUserProfile } from '@/lib/api';
+import { getUploadStats, healthCheck, testApiConnection, getApiBaseUrl, getApiKey, generateApiKey, getUserProfile, getUserDocuments } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import DashboardUpload from '@/components/DashboardUpload';
 import { GlowingEffect } from '@/components/ui/glowing-effect';
@@ -34,7 +34,13 @@ function DashboardContent() {
   const [userEmail, setUserEmail] = useState('');
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [backendStatus, setBackendStatus] = useState<'checking' | 'online' | 'offline'>('checking');
-  const [dataSources, setDataSources] = useState<Array<{ name: string; type: string; status: string; date: string; }>>([]);
+  const [dataSources, setDataSources] = useState<Array<{ 
+    document_id: string;
+    name: string; 
+    type: string; 
+    status: string; 
+    date: string; 
+  }>>([]);
   const [stats, setStats] = useState({
     totalQueries: 0,
     totalDocuments: 0,
@@ -111,6 +117,24 @@ function DashboardContent() {
     }
   };
 
+  const fetchDocuments = async () => {
+    if (authLoading || !user) return;
+    
+    try {
+      const response = await getUserDocuments();
+      const formattedDocs = response.documents.map(doc => ({
+        document_id: doc.document_id,
+        name: doc.filename,
+        type: doc.file_type,
+        status: doc.status,
+        date: new Date(doc.created_at).toLocaleDateString()
+      }));
+      setDataSources(formattedDocs);
+    } catch (error) {
+      console.error('Failed to fetch documents:', error);
+    }
+  };
+
   const fetchApiKey = async () => {
     if (authLoading || !user) return;
     try {
@@ -159,9 +183,8 @@ function DashboardContent() {
     const timer = setTimeout(() => {
       fetchStats();
       fetchApiKey();
+      fetchDocuments();
     }, 500);
-
-    setDataSources([]);
 
     return () => clearTimeout(timer);
   }, [user, userProfile, authLoading]);
@@ -175,15 +198,7 @@ function DashboardContent() {
 
   const handleUploadComplete = () => {
     fetchStats();
-    // In a real app, we'd also refresh the data sources list here
-    // For now, we can simulate adding a new item
-    const newSource = {
-      name: 'New Upload',
-      type: 'File',
-      status: 'Processed',
-      date: new Date().toLocaleDateString()
-    };
-    setDataSources(prev => [newSource, ...prev]);
+    fetchDocuments(); // Refresh documents list after upload
   };
 
   const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
@@ -228,7 +243,9 @@ function DashboardContent() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10">
           <div>
             <h1 className="text-3xl font-bold text-white mb-1">Dashboard</h1>
-            <p className="text-gray-400">Welcome back, {userEmail}</p>
+            <p className="text-gray-400">
+              Welcome back, {userProfile?.display_name || userEmail || 'User'}
+            </p>
             <div className="mt-2">
               <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium ${(userProfile?.plan || 'free') === 'pro' ? 'bg-blue-500/10 border border-blue-500/20 text-blue-400' :
                   (userProfile?.plan || 'free') === 'business' ? 'bg-purple-500/10 border border-purple-500/20 text-purple-400' :
@@ -238,7 +255,7 @@ function DashboardContent() {
               </span>
             </div>
           </div>
-          <div className="flex items-center gap-3">
+          {/* <div className="flex items-center gap-3">
             <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full border ${backendStatus === 'online'
               ? 'bg-green-500/10 border-green-500/20 text-green-400'
               : 'bg-red-500/10 border-red-500/20 text-red-400'
@@ -253,7 +270,7 @@ function DashboardContent() {
             >
               <FiRefreshCw className={`w-4 h-4 ${isLoadingStats ? 'animate-spin' : ''}`} />
             </button>
-          </div>
+          </div> */}
         </div>
 
         {/* Bento Grid Layout */}
@@ -427,7 +444,11 @@ function DashboardContent() {
                   </div>
                 </Link>
 
-                <div className="flex items-center gap-3 p-4 rounded-xl bg-white/5 hover:bg-white/10 transition-all border border-white/5 hover:border-white/20 group cursor-pointer">
+                <Link
+                  href="/documentation"
+                  className="flex items-center gap-3 p-4 rounded-xl bg-white/5 hover:bg-white/10 transition-all border border-white/5 hover:border-white/20 group"
+                >
+                 
                   <div className="p-3 bg-orange-500/20 rounded-xl text-orange-400 group-hover:scale-110 transition-transform">
                     <FiBookOpen className="w-6 h-6" />
                   </div>
@@ -435,7 +456,8 @@ function DashboardContent() {
                     <div className="font-medium text-base">Documentation</div>
                     <div className="text-sm text-gray-500">View comprehensive API docs</div>
                   </div>
-                </div>
+                
+                </Link>
               </div>
             </div>
           </div>

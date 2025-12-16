@@ -1,11 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
-import { FiUser, FiSave, FiImage, FiCheck, FiLoader } from 'react-icons/fi';
+import { FiUser, FiSave, FiImage, FiCheck, FiLoader, FiUpload, FiX } from 'react-icons/fi';
 import { updateUserProfile, getUploadStats, deleteDocument, deleteAllDocuments } from '@/lib/api';
+import Image from 'next/image';
 
 
 const DEFAULT_AVATARS = [
@@ -29,6 +30,9 @@ export default function SettingsPage() {
     const [displayName, setDisplayName] = useState('');
     const [photoUrl, setPhotoUrl] = useState('');
     const [customUrl, setCustomUrl] = useState('');
+    const [uploadingImage, setUploadingImage] = useState(false);
+    const [imageError, setImageError] = useState<string | null>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
         if (!user) {
@@ -46,16 +50,25 @@ export default function SettingsPage() {
         setLoading(true);
         setSuccessMessage(null);
         try {
-            await updateUserProfile({
+            console.log('Saving profile with data:', {
+                display_name: displayName,
+                photo_url: photoUrl ? `${photoUrl.substring(0, 50)}...` : 'null'
+            });
+            
+            const result = await updateUserProfile({
                 display_name: displayName,
                 photo_url: photoUrl
             });
+            
+            console.log('Profile update result:', result);
+            
             await refreshProfile(); // Refresh context
             setSuccessMessage('Profile updated successfully!');
             setTimeout(() => setSuccessMessage(null), 3000);
-        } catch (error) {
+        } catch (error: any) {
             console.error('Failed to update profile:', error);
-            // Handle error appropriately
+            setSuccessMessage(`Error: ${error.message || 'Failed to update profile'}`);
+            setTimeout(() => setSuccessMessage(null), 5000);
         } finally {
             setLoading(false);
         }
@@ -65,6 +78,86 @@ export default function SettingsPage() {
         setCustomUrl(e.target.value);
         if (e.target.value) {
             setPhotoUrl(e.target.value);
+            setImageError(null);
+        }
+    };
+
+    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        // Validate file type
+        if (!file.type.startsWith('image/')) {
+            setImageError('Please select an image file');
+            return;
+        }
+
+        // Validate file size (max 2MB for base64)
+        if (file.size > 2 * 1024 * 1024) {
+            setImageError('Image size must be less than 2MB');
+            return;
+        }
+
+        setUploadingImage(true);
+        setImageError(null);
+
+        try {
+            // Create a compressed version
+            const img = document.createElement('img');
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                img.onload = () => {
+                    // Resize to max 400x400 to keep base64 small
+                    const maxSize = 400;
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > height) {
+                        if (width > maxSize) {
+                            height *= maxSize / width;
+                            width = maxSize;
+                        }
+                    } else {
+                        if (height > maxSize) {
+                            width *= maxSize / height;
+                            height = maxSize;
+                        }
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    ctx?.drawImage(img, 0, 0, width, height);
+
+                    // Convert to base64 with compression
+                    const base64String = canvas.toDataURL('image/jpeg', 0.8);
+                    console.log('Image size:', (base64String.length / 1024).toFixed(2) + 'KB');
+                    
+                    setPhotoUrl(base64String);
+                    setCustomUrl('');
+                    setUploadingImage(false);
+                };
+                img.src = event.target?.result as string;
+            };
+            reader.onerror = () => {
+                setImageError('Failed to read image file');
+                setUploadingImage(false);
+            };
+            reader.readAsDataURL(file);
+        } catch (error) {
+            console.error('Image upload error:', error);
+            setImageError('Failed to upload image');
+            setUploadingImage(false);
+        }
+    };
+
+    const handleRemovePhoto = () => {
+        setPhotoUrl('');
+        setCustomUrl('');
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
         }
     };
 
@@ -160,9 +253,57 @@ export default function SettingsPage() {
 
                                 {/* Custom URL & Defaults */}
                                 <div className="flex-1 space-y-6">
+                                    {/* Upload from Local Storage */}
                                     <div>
                                         <label className="block text-sm font-medium text-gray-400 mb-2">
-                                            Custom Image URL
+                                            Upload from Device
+                                        </label>
+                                        <div className="flex items-center gap-3">
+                                            <button
+                                                type="button"
+                                                onClick={() => fileInputRef.current?.click()}
+                                                disabled={uploadingImage}
+                                                className="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                                            >
+                                                {uploadingImage ? (
+                                                    <>
+                                                        <FiLoader className="w-4 h-4 animate-spin" />
+                                                        Uploading...
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <FiUpload className="w-4 h-4" />
+                                                        Choose File
+                                                    </>
+                                                )}
+                                            </button>
+                                            {photoUrl && !customUrl && photoUrl.startsWith('data:') && (
+                                                <button
+                                                    type="button"
+                                                    onClick={handleRemovePhoto}
+                                                    className="px-3 py-2 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 transition-all flex items-center gap-1"
+                                                >
+                                                    <FiX className="w-4 h-4" />
+                                                    Remove
+                                                </button>
+                                            )}
+                                        </div>
+                                        <input
+                                            ref={fileInputRef}
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={handleFileUpload}
+                                            className="hidden"
+                                        />
+                                        {imageError && (
+                                            <p className="text-red-400 text-xs mt-2">{imageError}</p>
+                                        )}
+                                        <p className="text-xs text-gray-600 mt-2">Max 2MB. Image will be resized to 400x400. Supports JPG, PNG, GIF, WebP</p>
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-400 mb-2">
+                                            Or enter Image URL
                                         </label>
                                         <input
                                             type="text"
@@ -184,6 +325,9 @@ export default function SettingsPage() {
                                                     onClick={() => {
                                                         setPhotoUrl(url);
                                                         setCustomUrl('');
+                                                        if (fileInputRef.current) {
+                                                            fileInputRef.current.value = '';
+                                                        }
                                                     }}
                                                     className={`aspect-square rounded-full overflow-hidden border-2 transition-all ${photoUrl === url
                                                         ? 'border-purple-500 scale-110 shadow-lg shadow-purple-500/20'

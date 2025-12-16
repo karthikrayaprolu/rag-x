@@ -237,6 +237,23 @@ export async function getUploadStats(): Promise<UploadStats> {
 }
 
 /**
+ * Get all uploaded documents for the current user
+ */
+export async function getUserDocuments(): Promise<{
+  documents: Array<{
+    document_id: string;
+    filename: string;
+    file_type: string;
+    created_at: string;
+    status: string;
+    metadata?: Record<string, any>;
+  }>;
+  total: number;
+}> {
+  return apiRequest('/upload/documents');
+}
+
+/**
  * Delete a specific document
  */
 export async function deleteDocument(documentId: string): Promise<{ deleted: boolean; message: string }> {
