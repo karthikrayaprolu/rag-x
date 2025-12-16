@@ -262,6 +262,8 @@ function DashboardContent() {
           {/* 1. Total Queries */}
           <div className="col-span-12 md:col-span-4 relative h-full rounded-3xl border border-white/10 p-2.5">
             <GlowingEffect
+              blur={0}
+              borderWidth={1}
               spread={40}
               glow={true}
               disabled={false}
@@ -282,6 +284,8 @@ function DashboardContent() {
           {/* 2. Documents */}
           <div className="col-span-12 md:col-span-4 relative h-full rounded-3xl border border-white/10 p-2.5">
             <GlowingEffect
+              blur={0}
+              borderWidth={1}
               spread={40}
               glow={true}
               disabled={false}
@@ -302,6 +306,8 @@ function DashboardContent() {
           {/* 3. Embeddings */}
           <div className="col-span-12 md:col-span-4 relative h-full rounded-3xl border border-white/10 p-2.5">
             <GlowingEffect
+              blur={0}
+              borderWidth={1}
               spread={40}
               glow={true}
               disabled={false}
@@ -322,6 +328,8 @@ function DashboardContent() {
           {/* 4. Upload Data (Large Card) */}
           <div className="col-span-12 lg:col-span-8 relative h-full rounded-3xl border border-white/10 p-2.5">
             <GlowingEffect
+              blur={0}
+              borderWidth={1}
               spread={40}
               glow={true}
               disabled={false}
@@ -340,6 +348,8 @@ function DashboardContent() {
           {/* 6. Recent Uploads Table (Now Small Right) */}
           <div className="col-span-12 lg:col-span-4 relative h-full rounded-3xl border border-white/10 p-2.5">
             <GlowingEffect
+              blur={0}
+              borderWidth={1}
               spread={40}
               glow={true}
               disabled={false}
@@ -390,6 +400,8 @@ function DashboardContent() {
           {/* 5. Quick Actions (Now Large Left) */}
           <div className="col-span-12 lg:col-span-8 relative h-full rounded-3xl border border-white/10 p-2.5">
             <GlowingEffect
+              blur={0}
+              borderWidth={1}
               spread={40}
               glow={true}
               disabled={false}
@@ -431,6 +443,8 @@ function DashboardContent() {
           {/* 7. API Access */}
           <div className="col-span-12 lg:col-span-4 relative h-full rounded-3xl border border-white/10 p-2.5">
             <GlowingEffect
+              blur={0}
+              borderWidth={1}
               spread={40}
               glow={true}
               disabled={false}
