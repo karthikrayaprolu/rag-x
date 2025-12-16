@@ -2,8 +2,9 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiSend, FiUser, FiMenu, FiPlus, FiTrash2 } from 'react-icons/fi';
+import { FiSend, FiUser, FiMenu, FiPlus, FiTrash2, FiHome } from 'react-icons/fi';
 import { PiBrain } from 'react-icons/pi';
+import Link from 'next/link';
 import {
   chatQuery,
   chatStream,
@@ -15,6 +16,7 @@ import {
   ChatSession
 } from '@/lib/api';
 import MarkdownRenderer from './MarkdownRenderer';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface Message {
   id: number | string;
@@ -25,6 +27,7 @@ interface Message {
 }
 
 export default function ChatBox() {
+  const { userProfile } = useAuth();
   const [messages, setMessages] = useState<Message[]>([
     {
       id: 'welcome',
@@ -243,6 +246,18 @@ export default function ChatBox() {
           <FiMenu className="w-5 h-5" />
         </button>
 
+        {/* Dashboard Button (Floating) */}
+        <Link
+          href="/dashboard"
+          className="absolute top-24 left-6 z-20 p-2 bg-white/10 hover:bg-white/20 rounded-full text-white transition-colors backdrop-blur-md border border-white/10 group"
+          title="Back to Dashboard"
+        >
+          <FiHome className="w-5 h-5" />
+          <span className="absolute left-full ml-3 top-1/2 -translate-y-1/2 bg-white/10 backdrop-blur-md px-3 py-1.5 rounded-lg text-white text-sm font-medium whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity border border-white/20">
+            Dashboard
+          </span>
+        </Link>
+
         {/* Messages Area */}
         <div className="flex-1 overflow-y-auto mt-4" data-lenis-prevent>
           <div className="max-w-4xl mx-auto px-4 py-8">
@@ -259,13 +274,21 @@ export default function ChatBox() {
                 >
                   {/* Avatar */}
                   <div
-                    className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center shadow-lg ${message.sender === 'user'
-                      ? 'bg-white text-black'
+                    className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center shadow-lg overflow-hidden ${message.sender === 'user'
+                      ? 'bg-white text-black border-2 border-white/20'
                       : 'bg-gradient-to-br from-indigo-500 to-purple-500 border border-white/10'
                       }`}
                   >
                     {message.sender === 'user' ? (
-                      <FiUser className="w-5 h-5" />
+                      userProfile?.photo_url ? (
+                        <img 
+                          src={userProfile.photo_url} 
+                          alt="User" 
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <FiUser className="w-5 h-5" />
+                      )
                     ) : (
                       <PiBrain className="w-6 h-6 text-white" />
                     )}

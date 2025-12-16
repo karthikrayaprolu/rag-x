@@ -22,7 +22,6 @@ import { getUploadStats, healthCheck, testApiConnection, getApiBaseUrl, getApiKe
 import { useAuth } from '@/contexts/AuthContext';
 import DashboardUpload from '@/components/DashboardUpload';
 import { GlowingEffect } from '@/components/ui/glowing-effect';
-import ApiTestPanel from '@/components/ApiTestPanel';
 import Swal from 'sweetalert2';
 
 function DashboardContent() {
@@ -523,8 +522,17 @@ function DashboardContent() {
         </div>
       </div>
 
-      {/* API Testing Panel */}
-      <ApiTestPanel />
+      {/* Floating Chat Button */}
+      <Link
+        href="/chat"
+        className="fixed bottom-8 right-8 p-4 bg-purple-500/20 hover:bg-purple-500/30 rounded-full shadow-2xl transition-all duration-300 hover:scale-110 z-50 group border border-purple-500/30"
+        title="Open Chat"
+      >
+        <FiMessageSquare className="w-6 h-6 text-purple-400" />
+        <span className="absolute right-full mr-3 top-1/2 -translate-y-1/2 bg-white/10 backdrop-blur-md px-3 py-1.5 rounded-lg text-white text-sm font-medium whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity border border-white/20">
+          Open Chat
+        </span>
+      </Link>
     </div>
   );
 }
