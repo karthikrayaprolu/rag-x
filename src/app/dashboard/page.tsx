@@ -26,13 +26,12 @@ import ApiTestPanel from '@/components/ApiTestPanel';
 import Swal from 'sweetalert2';
 
 function DashboardContent() {
-  const { user, loading: authLoading, userProfile } = useAuth();
+  const { user, loading: authLoading, userProfile, refreshProfile } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
 
   const [userId, setUserId] = useState('');
   const [userEmail, setUserEmail] = useState('');
-  const [userPlan, setUserPlan] = useState('free');
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [backendStatus, setBackendStatus] = useState<'checking' | 'online' | 'offline'>('checking');
   const [dataSources, setDataSources] = useState<Array<{ name: string; type: string; status: string; date: string; }>>([]);
@@ -73,27 +72,21 @@ function DashboardContent() {
       window.history.replaceState({}, '', '/dashboard');
 
       // Fetch updated user profile after a short delay to allow webhook to process
-      setTimeout(() => {
-        fetchUserProfile();
+      setTimeout(async () => {
+        await refreshProfile();
       }, 2000); // Wait 2 seconds for webhook to update database
 
       // Fetch again after 5 seconds in case first attempt was too early
-      setTimeout(() => {
-        fetchUserProfile();
+      setTimeout(async () => {
+        await refreshProfile();
       }, 5000);
-    }
-  }, [searchParams]);
 
-  const fetchUserProfile = async () => {
-    if (authLoading || !user) return;
-    try {
-      const profile = await getUserProfile();
-      const newPlan = profile.plan || 'free';
-      setUserPlan(newPlan);
-    } catch (error) {
-      console.error('Failed to fetch user profile:', error);
+      // And again after 10 seconds for slower webhooks
+      setTimeout(async () => {
+        await refreshProfile();
+      }, 10000);
     }
-  };
+  }, [searchParams, refreshProfile]);
 
   const fetchStats = async () => {
     if (authLoading || !user) {
@@ -162,7 +155,6 @@ function DashboardContent() {
     setUserEmail(storedEmail);
 
     checkBackendHealth();
-    fetchUserProfile();
 
     const timer = setTimeout(() => {
       fetchStats();
@@ -220,7 +212,7 @@ function DashboardContent() {
             </div>
             <div className="flex items-center gap-2">
               <button
-                onClick={() => fetchUserProfile()}
+                onClick={refreshProfile}
                 className="px-3 py-1 bg-green-500/20 hover:bg-green-500/30 rounded-lg text-green-400 text-sm transition-colors"
               >
                 Refresh Plan
@@ -238,11 +230,11 @@ function DashboardContent() {
             <h1 className="text-3xl font-bold text-white mb-1">Dashboard</h1>
             <p className="text-gray-400">Welcome back, {userEmail}</p>
             <div className="mt-2">
-              <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium ${userPlan === 'pro' ? 'bg-blue-500/10 border border-blue-500/20 text-blue-400' :
-                  userPlan === 'business' ? 'bg-purple-500/10 border border-purple-500/20 text-purple-400' :
+              <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium ${(userProfile?.plan || 'free') === 'pro' ? 'bg-blue-500/10 border border-blue-500/20 text-blue-400' :
+                  (userProfile?.plan || 'free') === 'business' ? 'bg-purple-500/10 border border-purple-500/20 text-purple-400' :
                     'bg-gray-500/10 border border-gray-500/20 text-gray-400'
                 }`}>
-                {userPlan.toUpperCase()} PLAN
+                {(userProfile?.plan || 'free').toUpperCase()} PLAN
               </span>
             </div>
           </div>
