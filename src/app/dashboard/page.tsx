@@ -8,20 +8,16 @@ import {
   FiFileText,
   FiDatabase,
   FiUpload,
-  FiMessageSquare,
-  FiBookOpen,
-  FiCopy,
   FiCheck,
-  FiRefreshCw,
-  FiActivity,
+  FiCopy,
   FiServer,
-  FiX
+  FiX,
+  FiRefreshCw
 } from 'react-icons/fi';
 import { PiBrain } from 'react-icons/pi';
-import { getUploadStats, healthCheck, testApiConnection, getApiBaseUrl, getApiKey, generateApiKey, getUserProfile, getUserDocuments } from '@/lib/api';
+import { getUploadStats, healthCheck, getApiKey, generateApiKey, getUserDocuments } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import DashboardUpload from '@/components/DashboardUpload';
-import { GlowingEffect } from '@/components/ui/glowing-effect';
 import Swal from 'sweetalert2';
 
 function DashboardContent() {
@@ -29,16 +25,13 @@ function DashboardContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const [userId, setUserId] = useState('');
-  const [userEmail, setUserEmail] = useState('');
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
-  const [backendStatus, setBackendStatus] = useState<'checking' | 'online' | 'offline'>('checking');
-  const [dataSources, setDataSources] = useState<Array<{ 
+  const [dataSources, setDataSources] = useState<Array<{
     document_id: string;
-    name: string; 
-    type: string; 
-    status: string; 
-    date: string; 
+    name: string;
+    type: string;
+    status: string;
+    date: string;
   }>>([]);
   const [stats, setStats] = useState({
     totalQueries: 0,
@@ -62,55 +55,32 @@ function DashboardContent() {
     const success = searchParams.get('success');
     if (success === 'true') {
       setShowSuccessBanner(true);
-      // Show success alert
       Swal.fire({
         title: 'Payment Successful!',
-        text: 'Your subscription is now active. Refreshing your plan details...',
+        text: 'Your subscription is now active.',
         icon: 'success',
-        confirmButtonText: 'Get Started',
+        confirmButtonText: 'Continue',
         background: '#1a1a1a',
         color: '#fff',
-        confirmButtonColor: '#3b82f6',
+        confirmButtonColor: '#fff',
       });
-
-      // Remove success param from URL
       window.history.replaceState({}, '', '/dashboard');
-
-      // Fetch updated user profile after a short delay to allow webhook to process
-      setTimeout(async () => {
-        await refreshProfile();
-      }, 2000); // Wait 2 seconds for webhook to update database
-
-      // Fetch again after 5 seconds in case first attempt was too early
-      setTimeout(async () => {
-        await refreshProfile();
-      }, 5000);
-
-      // And again after 10 seconds for slower webhooks
-      setTimeout(async () => {
-        await refreshProfile();
-      }, 10000);
+      setTimeout(async () => await refreshProfile(), 2000);
     }
   }, [searchParams, refreshProfile]);
 
   const fetchStats = async () => {
-    if (authLoading || !user) {
-      setIsLoadingStats(false);
-      return;
-    }
-
+    if (authLoading || !user) return;
     setIsLoadingStats(true);
     try {
       const uploadStats = await getUploadStats();
-
-      setStats(prev => ({
-        ...prev,
+      setStats({
         totalEmbeddings: uploadStats.vector_count,
         totalQueries: uploadStats.query_count || 0,
         totalDocuments: uploadStats.total_documents || 0,
-      }));
-    } catch (error: any) {
-      // Don't show error to user, just keep previous stats
+      });
+    } catch (error) {
+      console.error(error);
     } finally {
       setIsLoadingStats(false);
     }
@@ -118,7 +88,6 @@ function DashboardContent() {
 
   const fetchDocuments = async () => {
     if (authLoading || !user) return;
-    
     try {
       const response = await getUserDocuments();
       const formattedDocs = response.documents.map(doc => ({
@@ -140,7 +109,6 @@ function DashboardContent() {
       const key = await getApiKey();
       setApiKey(key);
     } catch (error) {
-      console.error('Failed to fetch API key:', error);
       setApiKey('Error loading key');
     }
   };
@@ -158,33 +126,13 @@ function DashboardContent() {
     }
   };
 
-  const checkBackendHealth = async () => {
-    setBackendStatus('checking');
-    try {
-      await healthCheck();
-      setBackendStatus('online');
-    } catch (error) {
-      setBackendStatus('offline');
-    }
-  };
-
   useEffect(() => {
     if (authLoading || !user) return;
-
-    const storedUserId = userProfile?.uid || localStorage.getItem('user_id') || user.uid || '';
-    const storedEmail = userProfile?.email || localStorage.getItem('user_email') || user.email || '';
-
-    setUserId(storedUserId);
-    setUserEmail(storedEmail);
-
-    checkBackendHealth();
-
     const timer = setTimeout(() => {
       fetchStats();
       fetchApiKey();
       fetchDocuments();
     }, 500);
-
     return () => clearTimeout(timer);
   }, [user, userProfile, authLoading]);
 
@@ -197,7 +145,7 @@ function DashboardContent() {
 
   const handleUploadComplete = () => {
     fetchStats();
-    fetchDocuments(); // Refresh documents list after upload
+    fetchDocuments();
   };
 
   const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
@@ -206,347 +154,156 @@ function DashboardContent() {
   if (authLoading || !user) return null;
 
   return (
-    <div className="min-h-screen bg-black text-white pt-32 pb-16 relative overflow-hidden">
-      {/* Background Ambient Glow */}
-      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none -z-10">
-        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-purple-900/20 rounded-full blur-[120px]"></div>
-        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-blue-900/20 rounded-full blur-[120px]"></div>
+    <div className="space-y-6">
+      {/* Page Header */}
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-semibold text-white tracking-tight">Overview</h1>
+        <button
+          onClick={fetchStats}
+          className="p-2 text-gray-400 hover:text-white transition-colors rounded-lg hover:bg-white/5"
+          title="Refresh Data"
+        >
+          <FiRefreshCw className={`w-4 h-4 ${isLoadingStats ? 'animate-spin' : ''}`} />
+        </button>
       </div>
 
-      <div className="container mx-auto px-4 lg:px-8 max-w-7xl">
-        {/* Success Banner */}
-        {showSuccessBanner && (
-          <div className="mb-6 p-4 bg-green-500/10 border border-green-500/20 rounded-xl flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <FiCheck className="w-5 h-5 text-green-400" />
-              <div>
-                <p className="text-green-400 font-medium">Payment Successful!</p>
-                <p className="text-sm text-gray-400">Your subscription is now active. If your plan hasn't updated, click refresh.</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={refreshProfile}
-                className="px-3 py-1 bg-green-500/20 hover:bg-green-500/30 rounded-lg text-green-400 text-sm transition-colors"
-              >
-                Refresh Plan
-              </button>
-              <button onClick={() => setShowSuccessBanner(false)} className="text-gray-400 hover:text-white">
-                <FiX className="w-5 h-5" />
-              </button>
+      {showSuccessBanner && (
+        <div className="p-4 bg-green-500/10 border border-green-500/20 rounded-xl flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <FiCheck className="w-5 h-5 text-green-400" />
+            <div>
+              <p className="text-green-400 font-medium text-sm">Subscription Active</p>
+              <p className="text-xs text-gray-400">Your pro features are now enabled.</p>
             </div>
           </div>
-        )}
-
-        {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10">
-          <div>
-            <h1 className="text-3xl font-bold text-white mb-1">Dashboard</h1>
-            <p className="text-gray-400">
-              Welcome back, {userProfile?.display_name || userEmail || 'User'}
-            </p>
-            <div className="mt-2">
-              <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium ${(userProfile?.plan || 'free') === 'pro' ? 'bg-blue-500/10 border border-blue-500/20 text-blue-400' :
-                  (userProfile?.plan || 'free') === 'business' ? 'bg-purple-500/10 border border-purple-500/20 text-purple-400' :
-                    'bg-gray-500/10 border border-gray-500/20 text-gray-400'
-                }`}>
-                {(userProfile?.plan || 'free').toUpperCase()} PLAN
-              </span>
-            </div>
-          </div>
-          {/* <div className="flex items-center gap-3">
-            <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full border ${backendStatus === 'online'
-              ? 'bg-green-500/10 border-green-500/20 text-green-400'
-              : 'bg-red-500/10 border-red-500/20 text-red-400'
-              }`}>
-              <div className={`w-2 h-2 rounded-full ${backendStatus === 'online' ? 'bg-green-400 animate-pulse' : 'bg-red-400'}`} />
-              <span className="text-xs font-medium">Backend: {backendStatus}</span>
-            </div>
-            <button
-              onClick={fetchStats}
-              disabled={isLoadingStats}
-              className="p-2 bg-white/5 hover:bg-white/10 rounded-full border border-white/10 transition-all text-gray-400 hover:text-white"
-            >
-              <FiRefreshCw className={`w-4 h-4 ${isLoadingStats ? 'animate-spin' : ''}`} />
-            </button>
-          </div> */}
+          <button onClick={() => setShowSuccessBanner(false)} className="text-gray-400 hover:text-white">
+            <FiX className="w-4 h-4" />
+          </button>
         </div>
+      )}
 
-        {/* Bento Grid Layout */}
-        <div className="grid grid-cols-12 gap-6">
-
-          {/* 1. Total Queries */}
-          <div className="col-span-12 md:col-span-4 relative h-full rounded-3xl border border-white/10 p-2.5">
-            <GlowingEffect
-              blur={0}
-              borderWidth={1}
-              spread={40}
-              glow={true}
-              disabled={false}
-              proximity={64}
-              inactiveZone={0.01}
-            />
-            <div className="relative flex h-full flex-col justify-between overflow-hidden rounded-2xl bg-white/5 p-6 backdrop-blur-xl border border-white/10">
-              <div className="flex items-center justify-between mb-4">
-                <div className="p-2 bg-blue-500/20 rounded-lg text-blue-400">
-                  <FiBarChart2 className="w-6 h-6" />
-                </div>
-                <span className="text-xs text-gray-500 font-mono">TOTAL QUERIES</span>
-              </div>
-              <div className="text-3xl font-bold text-white">{stats.totalQueries}</div>
-            </div>
+      {/* Stats Row */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="p-6 rounded-xl border border-white/10 bg-[#0F0F0F]">
+          <div className="flex items-center gap-3 mb-2">
+            <FiBarChart2 className="text-gray-500" />
+            <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">Total Queries</span>
           </div>
-
-          {/* 2. Documents */}
-          <div className="col-span-12 md:col-span-4 relative h-full rounded-3xl border border-white/10 p-2.5">
-            <GlowingEffect
-              blur={0}
-              borderWidth={1}
-              spread={40}
-              glow={true}
-              disabled={false}
-              proximity={64}
-              inactiveZone={0.01}
-            />
-            <div className="relative flex h-full flex-col justify-between overflow-hidden rounded-2xl bg-white/5 p-6 backdrop-blur-xl border border-white/10">
-              <div className="flex items-center justify-between mb-4">
-                <div className="p-2 bg-purple-500/20 rounded-lg text-purple-400">
-                  <FiFileText className="w-6 h-6" />
-                </div>
-                <span className="text-xs text-gray-500 font-mono">DOCUMENTS</span>
-              </div>
-              <div className="text-3xl font-bold text-white">{stats.totalDocuments}</div>
-            </div>
+          <div className="text-2xl font-semibold text-white">{stats.totalQueries}</div>
+        </div>
+        <div className="p-6 rounded-xl border border-white/10 bg-[#0F0F0F]">
+          <div className="flex items-center gap-3 mb-2">
+            <FiFileText className="text-gray-500" />
+            <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">Documents</span>
           </div>
-
-          {/* 3. Embeddings */}
-          <div className="col-span-12 md:col-span-4 relative h-full rounded-3xl border border-white/10 p-2.5">
-            <GlowingEffect
-              blur={0}
-              borderWidth={1}
-              spread={40}
-              glow={true}
-              disabled={false}
-              proximity={64}
-              inactiveZone={0.01}
-            />
-            <div className="relative flex h-full flex-col justify-between overflow-hidden rounded-2xl bg-white/5 p-6 backdrop-blur-xl border border-white/10">
-              <div className="flex items-center justify-between mb-4">
-                <div className="p-2 bg-pink-500/20 rounded-lg text-pink-400">
-                  <PiBrain className="w-6 h-6" />
-                </div>
-                <span className="text-xs text-gray-500 font-mono">EMBEDDINGS</span>
-              </div>
-              <div className="text-3xl font-bold text-white">{stats.totalEmbeddings}</div>
-            </div>
+          <div className="text-2xl font-semibold text-white">{stats.totalDocuments}</div>
+        </div>
+        <div className="p-6 rounded-xl border border-white/10 bg-[#0F0F0F]">
+          <div className="flex items-center gap-3 mb-2">
+            <PiBrain className="text-gray-500" />
+            <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">Vectors</span>
           </div>
+          <div className="text-2xl font-semibold text-white">{stats.totalEmbeddings.toLocaleString()}</div>
+        </div>
+      </div>
 
-          {/* 4. Upload Data (Large Card) */}
-          <div className="col-span-12 lg:col-span-8 relative h-full rounded-3xl border border-white/10 p-2.5">
-            <GlowingEffect
-              blur={0}
-              borderWidth={1}
-              spread={40}
-              glow={true}
-              disabled={false}
-              proximity={64}
-              inactiveZone={0.01}
-            />
-            <div className="relative flex h-full flex-col overflow-hidden rounded-2xl bg-white/5 p-6 backdrop-blur-xl border border-white/10">
-              <h2 className="text-lg font-semibold mb-6 flex items-center gap-2 text-gray-200">
-                <FiUpload className="text-gray-400" />
-                Upload Data
-              </h2>
+      {/* Main Content Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left Col: Upload & API */}
+        <div className="lg:col-span-2 space-y-6">
+          <div className="border border-white/10 rounded-xl bg-[#0F0F0F] overflow-hidden">
+            <div className="px-6 py-4 border-b border-white/10 flex items-center justify-between bg-white/[0.02]">
+              <h3 className="font-medium text-sm text-gray-300 flex items-center gap-2">
+                <FiUpload className="text-gray-500" /> Upload Data
+              </h3>
+            </div>
+            <div className="p-6">
               <DashboardUpload onUploadComplete={handleUploadComplete} />
             </div>
           </div>
 
-          {/* 6. Recent Uploads Table (Now Small Right) */}
-          <div className="col-span-12 lg:col-span-4 relative h-full rounded-3xl border border-white/10 p-2.5">
-            <GlowingEffect
-              blur={0}
-              borderWidth={1}
-              spread={40}
-              glow={true}
-              disabled={false}
-              proximity={64}
-              inactiveZone={0.01}
-            />
-            <div className="relative flex h-full flex-col overflow-hidden rounded-2xl bg-white/5 p-0 backdrop-blur-xl border border-white/10">
-              <div className="p-6 border-b border-white/10 flex items-center justify-between bg-white/5">
-                <h2 className="text-lg font-semibold flex items-center gap-2 text-gray-200">
-                  <FiDatabase className="text-gray-400" />
-                  Recent Uploads
-                </h2>
-              </div>
-
-              <div className="p-0 flex-grow overflow-hidden">
-                {dataSources.length > 0 ? (
-                  <div className="overflow-x-auto">
-                    <table className="w-full">
-                      <thead>
-                        <tr className="text-left text-xs text-gray-500 border-b border-white/10">
-                          <th className="pl-6 py-3 font-medium">NAME</th>
-                          <th className="pr-6 py-3 font-medium text-right">STATUS</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {dataSources.map((source, i) => (
-                          <tr key={i} className="border-b border-white/5 last:border-0 hover:bg-white/5 transition-colors">
-                            <td className="pl-6 py-3 text-sm font-medium text-gray-300 truncate max-w-[120px]">{source.name}</td>
-                            <td className="pr-6 py-3 text-right">
-                              <span className="px-2 py-1 rounded-full text-[10px] bg-green-500/10 text-green-400 border border-green-500/20">
-                                {source.status}
-                              </span>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                ) : (
-                  <div className="text-center py-8 text-gray-500">
-                    <p className="text-sm">No recent uploads found.</p>
-                  </div>
-                )}
-              </div>
+          <div className="border border-white/10 rounded-xl bg-[#0F0F0F] overflow-hidden">
+            <div className="px-6 py-4 border-b border-white/10 flex items-center justify-between bg-white/[0.02]">
+              <h3 className="font-medium text-sm text-gray-300 flex items-center gap-2">
+                <FiServer className="text-gray-500" /> API Access
+              </h3>
             </div>
-          </div>
-
-          {/* 5. Quick Actions (Now Large Left) */}
-          <div className="col-span-12 lg:col-span-8 relative h-full rounded-3xl border border-white/10 p-2.5">
-            <GlowingEffect
-              blur={0}
-              borderWidth={1}
-              spread={40}
-              glow={true}
-              disabled={false}
-              proximity={64}
-              inactiveZone={0.01}
-            />
-            <div className="relative flex h-full flex-col overflow-hidden rounded-2xl bg-white/5 p-6 backdrop-blur-xl border border-white/10">
-              <h2 className="text-lg font-semibold mb-6 flex items-center gap-2 text-gray-200">
-                <FiActivity className="text-gray-400" />
-                Quick Actions
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Link
-                  href="/chat"
-                  className="flex items-center gap-3 p-4 rounded-xl bg-white/5 hover:bg-white/10 transition-all border border-white/5 hover:border-white/20 group"
-                >
-                  <div className="p-3 bg-purple-500/20 rounded-xl text-purple-400 group-hover:scale-110 transition-transform">
-                    <FiMessageSquare className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <div className="font-medium text-base">Chat Interface</div>
-                    <div className="text-sm text-gray-500">Test your RAG interactively</div>
-                  </div>
-                </Link>
-
-                <Link
-                  href="/documentation"
-                  className="flex items-center gap-3 p-4 rounded-xl bg-white/5 hover:bg-white/10 transition-all border border-white/5 hover:border-white/20 group"
-                >
-                 
-                  <div className="p-3 bg-orange-500/20 rounded-xl text-orange-400 group-hover:scale-110 transition-transform">
-                    <FiBookOpen className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <div className="font-medium text-base">Documentation</div>
-                    <div className="text-sm text-gray-500">View comprehensive API docs</div>
-                  </div>
-                
-                </Link>
-              </div>
-            </div>
-          </div>
-
-          {/* 7. API Access */}
-          <div className="col-span-12 lg:col-span-4 relative h-full rounded-3xl border border-white/10 p-2.5">
-            <GlowingEffect
-              blur={0}
-              borderWidth={1}
-              spread={40}
-              glow={true}
-              disabled={false}
-              proximity={64}
-              inactiveZone={0.01}
-            />
-            <div className="relative flex h-full flex-col overflow-hidden rounded-2xl bg-white/5 p-6 backdrop-blur-xl border border-white/10">
-              <h2 className="text-lg font-semibold mb-6 flex items-center gap-2 text-gray-200">
-                <FiServer className="text-gray-400" />
-                API Access
-              </h2>
-
-              <div className="space-y-6">
-
-
-                <div>
-                  <label className="text-xs text-gray-500 font-mono mb-2 block uppercase tracking-wider flex justify-between items-center">
-                    <span>API Key</span>
-                    <button onClick={handleRegenerateKey} disabled={isRegeneratingKey} className="text-[10px] text-blue-400 hover:text-blue-300 cursor-pointer">
-                      {isRegeneratingKey ? 'Generating...' : 'Regenerate'}
-                    </button>
-                  </label>
-                  <div className="flex items-center gap-2">
-                    <code className="flex-1 bg-black/50 px-3 py-2.5 rounded-xl text-xs font-mono text-gray-300 truncate border border-white/5 filter blur-sm hover:blur-none transition-all cursor-pointer" title="Hover to reveal">
-                      {apiKey}
-                    </code>
-                    <button
-                      onClick={() => copyToClipboard(apiKey, 'apikey')}
-                      className="p-2.5 bg-white/5 hover:bg-white/10 border border-white/5 rounded-xl transition-colors text-gray-400 hover:text-white"
-                    >
-                      {copiedKey === 'apikey' ? <FiCheck className="text-green-400" /> : <FiCopy />}
-                    </button>
-                  </div>
+            <div className="p-6 space-y-4">
+              <div>
+                <div className="flex justify-between items-center mb-1">
+                  <label className="text-xs text-gray-500 uppercase tracking-wider font-medium">Secret Key</label>
+                  <button onClick={handleRegenerateKey} disabled={isRegeneratingKey} className="text-[10px] text-red-400 hover:text-red-300">
+                    {isRegeneratingKey ? 'Rotating...' : 'Rotate Key'}
+                  </button>
                 </div>
-
-                <div>
-                  <label className="text-xs text-gray-500 font-mono mb-2 block uppercase tracking-wider">API Endpoint</label>
-                  <div className="flex items-center gap-2">
-                    <code className="flex-1 bg-black/50 px-3 py-2.5 rounded-xl text-xs font-mono text-gray-300 truncate border border-white/5">
-                      {apiEndpoint}
-                    </code>
-                    <button
-                      onClick={() => copyToClipboard(apiEndpoint, 'url')}
-                      className="p-2.5 bg-white/5 hover:bg-white/10 border border-white/5 rounded-xl transition-colors text-gray-400 hover:text-white"
-                    >
-                      {copiedKey === 'url' ? <FiCheck className="text-green-400" /> : <FiCopy />}
-                    </button>
-                  </div>
+                <div className="flex items-center gap-2">
+                  <code className="flex-1 bg-black border border-white/10 px-3 py-2 rounded-lg text-xs font-mono text-gray-300 truncate filter blur-[2px] hover:blur-none transition-all duration-200">
+                    {apiKey}
+                  </code>
+                  <button onClick={() => copyToClipboard(apiKey, 'apikey')} className="p-2 border border-white/10 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white transition-colors">
+                    {copiedKey === 'apikey' ? <FiCheck className="w-4 h-4 text-green-400" /> : <FiCopy className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs text-gray-500 uppercase tracking-wider font-medium mb-1">Query Endpoint</label>
+                <div className="flex items-center gap-2">
+                  <code className="flex-1 bg-black border border-white/10 px-3 py-2 rounded-lg text-xs font-mono text-gray-300 truncate">
+                    {apiEndpoint}
+                  </code>
+                  <button onClick={() => copyToClipboard(apiEndpoint, 'url')} className="p-2 border border-white/10 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white transition-colors">
+                    {copiedKey === 'url' ? <FiCheck className="w-4 h-4 text-green-400" /> : <FiCopy className="w-4 h-4" />}
+                  </button>
                 </div>
               </div>
             </div>
           </div>
-
         </div>
-      </div>
 
-      {/* Floating Chat Button */}
-      <Link
-        href="/chat"
-        className="fixed bottom-8 right-8 p-4 bg-purple-500/20 hover:bg-purple-500/30 rounded-full shadow-2xl transition-all duration-300 hover:scale-110 z-50 group border border-purple-500/30"
-        title="Open Chat"
-      >
-        <FiMessageSquare className="w-6 h-6 text-purple-400" />
-        <span className="absolute right-full mr-3 top-1/2 -translate-y-1/2 bg-white/10 backdrop-blur-md px-3 py-1.5 rounded-lg text-white text-sm font-medium whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity border border-white/20">
-          Open Chat
-        </span>
-      </Link>
+        {/* Right Col: Documents List */}
+        <div className="lg:col-span-1">
+          <div className="border border-white/10 rounded-xl bg-[#0F0F0F] h-full flex flex-col">
+            <div className="px-6 py-4 border-b border-white/10 flex items-center justify-between bg-white/[0.02]">
+              <h3 className="font-medium text-sm text-gray-300 flex items-center gap-2">
+                <FiDatabase className="text-gray-500" /> Knowledge Base
+              </h3>
+              <Link href="/dashboard/documents" className="text-xs text-blue-400 hover:text-blue-300">
+                View All
+              </Link>
+            </div>
+            <div className="flex-1 overflow-y-auto max-h-[500px]">
+              {dataSources.length > 0 ? (
+                <div className="divide-y divide-white/5">
+                  {dataSources.slice(0, 10).map((source, i) => (
+                    <div key={i} className="px-6 py-3 hover:bg-white/[0.02] transition-colors group">
+                      <div className="flex items-center justify-between mb-1">
+                        <div className="text-sm font-medium text-gray-200 truncate pr-4">{source.name}</div>
+                        <div className={`w-1.5 h-1.5 rounded-full ${source.status === 'completed' ? 'bg-green-500' : 'bg-yellow-500'}`}></div>
+                      </div>
+                      <div className="flex items-center justify-between text-xs text-gray-500">
+                        <span>{source.type.toUpperCase()}</span>
+                        <span>{source.date}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="p-8 text-center text-gray-500 text-sm">
+                  No documents found. Upload your first document to get started.
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+      </div>
     </div>
   );
 }
 
 export default function DashboardPage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-black text-white pt-32 pb-16 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-400">Loading dashboard...</p>
-        </div>
-      </div>
-    }>
+    <Suspense fallback={<div className="text-center pt-20 text-gray-500">Loading...</div>}>
       <DashboardContent />
     </Suspense>
   );

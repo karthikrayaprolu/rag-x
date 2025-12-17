@@ -9,26 +9,22 @@ export default function ParallaxBackground() {
     // As we scroll down (progress 0 -> 1), move these elements
     const y1 = useTransform(scrollYProgress, [0, 1], ["0%", "50%"])
     const y2 = useTransform(scrollYProgress, [0, 1], ["0%", "-50%"])
-    const rotate1 = useTransform(scrollYProgress, [0, 1], [0, 360])
 
     return (
-        <div className="fixed inset-0 overflow-hidden pointer-events-none -z-50">
-            {/* Top Left Orb */}
-            <motion.div
-                style={{ y: y1, rotate: rotate1 }}
-                className="absolute top-[-20%] left-[-10%] w-[70vw] h-[70vw] rounded-full bg-gradient-to-br from-purple-900/30 to-blue-900/10 blur-[100px] opacity-70"
-            />
+        <div className="fixed inset-0 overflow-hidden pointer-events-none -z-50 bg-[#050505]">
+            {/* Subtle Texture */}
+            <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.03] mix-blend-overlay"></div>
 
-            {/* Bottom Right Orb */}
-            <motion.div
-                style={{ y: y2 }}
-                className="absolute bottom-[-20%] right-[-10%] w-[60vw] h-[60vw] rounded-full bg-gradient-to-tr from-indigo-900/20 to-cyan-900/10 blur-[120px] opacity-60"
-            />
-
-            {/* Middle Floating Orb */}
+            {/* Top Left Subtle Light */}
             <motion.div
                 style={{ y: y1 }}
-                className="absolute top-[40%] left-[30%] w-[40vw] h-[40vw] rounded-full bg-fuchsia-900/10 blur-[90px]"
+                className="absolute top-[-20%] left-[-10%] w-[70vw] h-[70vw] rounded-full bg-zinc-800/20 blur-[120px]"
+            />
+
+            {/* Bottom Right Subtle Light */}
+            <motion.div
+                style={{ y: y2 }}
+                className="absolute bottom-[-20%] right-[-10%] w-[60vw] h-[60vw] rounded-full bg-zinc-800/20 blur-[120px]"
             />
         </div>
     )

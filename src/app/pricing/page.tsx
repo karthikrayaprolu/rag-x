@@ -56,7 +56,7 @@ export default function PricingPage() {
         <div className="min-h-screen bg-black text-white pt-32 pb-20 relative overflow-hidden">
             {/* Background Glow */}
             <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none -z-10">
-                <div className="absolute top-[-20%] left-[40%] w-[50%] h-[50%] bg-purple-900/20 rounded-full blur-[120px]" />
+                <div className="absolute top-[-20%] left-[40%] w-[50%] h-[50%] bg-zinc-800/20 rounded-full blur-[120px]" />
             </div>
 
             <div className="container mx-auto px-4 lg:px-8">
@@ -65,11 +65,11 @@ export default function PricingPage() {
                     animate={{ opacity: 1, y: 0 }}
                     className="max-w-4xl mx-auto text-center mb-20"
                 >
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-purple-400 text-xs font-medium mb-8 uppercase tracking-widest hover:bg-white/10 transition-colors cursor-default">
-                        <span>Transparent Pricing</span>
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-white/60 text-xs font-medium mb-6 uppercase tracking-widest">
+                        <span>Plans & Pricing</span>
                     </div>
-                    <h1 className="text-5xl md:text-7xl font-bold mb-8 tracking-tight bg-clip-text text-transparent bg-gradient-to-b from-white via-white to-gray-500">
-                        Transparent Pricing
+                    <h1 className="text-5xl md:text-7xl font-bold mb-8 tracking-tight">
+                        Simple, transparent <span className="text-gray-500">pricing</span>
                     </h1>
                     <p className="text-xl text-gray-400 leading-relaxed max-w-2xl mx-auto font-light">
                         Choose the plan that's right for you. Change or cancel at any time.
@@ -127,8 +127,8 @@ export default function PricingPage() {
                             onClick={() => handleSubscribe(PRICE_IDS.PRO)}
                             disabled={loadingPriceId === PRICE_IDS.PRO || userProfile?.plan === 'pro' || isLoadingProfile}
                             className={`w-full py-3 rounded-xl font-medium mb-8 transition-colors ${userProfile?.plan === 'pro'
-                                    ? 'bg-green-500/20 text-green-400 border border-green-500/50 cursor-default'
-                                    : 'bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50 disabled:cursor-not-allowed'
+                                ? 'bg-green-500/20 text-green-400 border border-green-500/50 cursor-default'
+                                : 'bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50 disabled:cursor-not-allowed'
                                 }`}
                         >
                             {loadingPriceId === PRICE_IDS.PRO

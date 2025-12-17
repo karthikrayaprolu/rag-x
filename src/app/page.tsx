@@ -4,10 +4,13 @@ import Link from 'next/link';
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
 import { motion } from 'framer-motion';
+import { FiLayers, FiShield, FiDatabase, FiZap, FiCpu, FiGlobe } from 'react-icons/fi'; // Added icons
 import { useAuth } from '@/contexts/AuthContext';
 import ParallaxElement from '@/components/ParallaxElement';
 import { ShootingStars } from '@/components/ui/shooting-stars';
 import { StarsBackground } from '@/components/ui/stars-background';
+import { CardSpotlight } from '@/components/ui/card-spotlight'; // Added CardSpotlight
+import Footer from '@/components/Footer';
 import { useState, useEffect } from 'react';
 import { getUploadStats } from '@/lib/api';
 
@@ -68,8 +71,8 @@ export default function Home() {
           maxSpeed={30}
           minDelay={1200}
           maxDelay={4200}
-          starColor="#9E00FF"
-          trailColor="#2EB9DF"
+          starColor="#FFFFFF"
+          trailColor="#52525b"
           starWidth={10}
           starHeight={1}
         />
@@ -100,23 +103,26 @@ export default function Home() {
 
             <ParallaxElement offset={40}>
               <motion.h1
-                className="text-3xl lg:text-6xl font-bold mb-6 tracking-tight"
+                className="text-4xl lg:text-7xl font-bold mb-6 tracking-tight leading-tight"
                 initial={{ opacity: 0, y: 50 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.2 }}
               >
-                <span className="gradient-accent">Welcome to RAGx</span>
+                <span className="block text-white">Build Intelligent</span>
+                <span className="text-gray-400">
+                  RAG Applications
+                </span>
               </motion.h1>
             </ParallaxElement>
 
             <ParallaxElement offset={60}>
               <motion.p
-                className="text-xl text-gray-400 mb-8 leading-relaxed max-w-lg mx-auto lg:mx-0"
+                className="text-xl text-gray-400 mb-10 leading-relaxed max-w-lg mx-auto lg:mx-0 font-light"
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.4 }}
               >
-                Upload documents. Connect databases. Deploy your knowledge API.
+                The complete platform for parsing, embedding, and retrieving knowledge. Enterprise-grade security. Zero friction.
               </motion.p>
             </ParallaxElement>
 
@@ -175,13 +181,124 @@ export default function Home() {
             >
               <div className="relative w-full h-full min-h-[500px] flex justify-center items-center">
                 {/* Background Glow */}
-                <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-blue-500/10 blur-3xl rounded-full -z-10"></div>
+                <div className="absolute inset-0 bg-white/5 blur-3xl rounded-full -z-10"></div>
                 <SplineScene />
               </div>
             </motion.div>
           </ParallaxElement>
         </div>
-      </main>
-    </div>
+
+
+        {/* Features Section - Bento Grid */}
+        <div className="py-24 relative z-10 max-w-7xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-3xl md:text-5xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-b from-white to-gray-400">
+              Everything you need to build <br /> world-class AI apps.
+            </h2>
+            <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+              From raw data to real-time answers, RAGx handles the entire pipeline so you can focus on building the future.
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 auto-rows-[300px]">
+
+            {/* Feature 1: Ingestion (Large) */}
+            <CardSpotlight className="md:col-span-2 rounded-3xl p-8 bg-white/5 border border-white/10 relative overflow-hidden group">
+              <div className="relative z-10">
+                <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center mb-6 text-white group-hover:scale-110 transition-transform duration-300">
+                  <FiLayers className="w-6 h-6" />
+                </div>
+                <h3 className="text-2xl font-bold mb-4">Universal Ingestion</h3>
+                <p className="text-gray-400 max-w-md">
+                  Drag and drop PDFs, CSVs, or JSON files. We automatically parse, chunk, and embed your data using state-of-the-art models.
+                </p>
+              </div>
+
+              {/* Visual Decorative */}
+              <div className="absolute top-1/2 right-10 -translate-y-1/2 flex flex-col gap-3 opacity-30 group-hover:opacity-60 transition-opacity">
+                <div className="w-24 h-8 bg-zinc-900 border border-white/20 rounded flex items-center justify-center text-[10px] text-gray-400">parsing...</div>
+                <div className="w-24 h-8 bg-zinc-900 border border-white/20 rounded flex items-center justify-center text-[10px] text-gray-400">chunking...</div>
+                <div className="w-24 h-8 bg-zinc-900 border border-white/20 rounded flex items-center justify-center text-[10px] text-gray-400">embedding...</div>
+              </div>
+            </CardSpotlight>
+
+            {/* Feature 2: Speed */}
+            <CardSpotlight className="rounded-3xl p-8 bg-white/5 border border-white/10 relative overflow-hidden group">
+              <div className="relative z-10">
+                <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center mb-6 text-white group-hover:scale-110 transition-transform duration-300">
+                  <FiZap className="w-6 h-6" />
+                </div>
+                <h3 className="text-2xl font-bold mb-4">Real-time</h3>
+                <p className="text-gray-400">
+                  Streaming responses with sub-50ms latency. No loading spinners.
+                </p>
+              </div>
+              <div className="absolute inset-0 bg-gradient-to-t from-white/5 to-transparent pointer-events-none" />
+            </CardSpotlight>
+
+            {/* Feature 3: Security */}
+            <CardSpotlight className="rounded-3xl p-8 bg-white/5 border border-white/10 relative overflow-hidden group">
+              <div className="relative z-10">
+                <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center mb-6 text-white group-hover:scale-110 transition-transform duration-300">
+                  <FiShield className="w-6 h-6" />
+                </div>
+                <h3 className="text-2xl font-bold mb-4">Enterprise Secure</h3>
+                <p className="text-gray-400">
+                  Data isolation by default. Your knowledge base is yours alone and never used for training.
+                </p>
+              </div>
+            </CardSpotlight>
+
+            {/* Feature 4: Memory (Large) */}
+            <CardSpotlight className="md:col-span-2 rounded-3xl p-8 bg-white/5 border border-white/10 relative overflow-hidden group">
+              <div className="relative z-10">
+                <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center mb-6 text-white group-hover:scale-110 transition-transform duration-300">
+                  <FiDatabase className="w-6 h-6" />
+                </div>
+                <h3 className="text-2xl font-bold mb-4">Persistent Memory</h3>
+                <p className="text-gray-400 max-w-md">
+                  RAGx remembers context across sessions. Resume conversations days later without losing a beat.
+                </p>
+              </div>
+              {/* Visual Decorative: Data/Memory Records */}
+              <div className="absolute top-1/2 right-12 -translate-y-1/2 flex flex-col gap-4 opacity-40 group-hover:opacity-70 transition-opacity pointer-events-none font-mono text-xs">
+                <div className="w-56 p-3 bg-zinc-900 border border-white/10 rounded-lg flex items-center justify-between shadow-lg transform translate-x-6 backdrop-blur-md">
+                  <div className="flex items-center gap-2 text-gray-400">
+                    <FiDatabase className="w-3 h-3" />
+                    <span>session_store_v1</span>
+                  </div>
+                  <div className="text-white/40">24MB</div>
+                </div>
+                <div className="w-56 p-3 bg-zinc-800 border border-white/20 rounded-lg flex items-center justify-between shadow-xl backdrop-blur-md z-10">
+                  <div className="flex items-center gap-2 text-white">
+                    <FiDatabase className="w-3 h-3 text-white" />
+                    <span>user_context_graph</span>
+                  </div>
+                  <div className="text-green-400/80">Active</div>
+                </div>
+                <div className="w-56 p-3 bg-zinc-900 border border-white/10 rounded-lg flex items-center justify-between shadow-lg transform translate-x-3 backdrop-blur-md">
+                  <div className="flex items-center gap-2 text-gray-400">
+                    <FiDatabase className="w-3 h-3" />
+                    <span>search_history_idx</span>
+                  </div>
+                  <div className="text-white/40">Synced</div>
+                </div>
+              </div>
+              <div className="absolute bottom-0 right-0 w-1/2 h-full bg-gradient-to-l from-white/5 to-transparent pointer-events-none" />
+            </CardSpotlight>
+
+          </div>
+        </div>
+
+        {/* Footer */}
+        <Footer />
+      </main >
+    </div >
   );
 }

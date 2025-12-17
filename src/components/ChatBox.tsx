@@ -253,9 +253,6 @@ export default function ChatBox() {
           title="Back to Dashboard"
         >
           <FiHome className="w-5 h-5" />
-          <span className="absolute left-full ml-3 top-1/2 -translate-y-1/2 bg-white/10 backdrop-blur-md px-3 py-1.5 rounded-lg text-white text-sm font-medium whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity border border-white/20">
-            Dashboard
-          </span>
         </Link>
 
         {/* Messages Area */}

@@ -147,7 +147,7 @@ export default function DashboardUpload({ onUploadComplete }: { onUploadComplete
                                     value={textTitle}
                                     onChange={(e) => setTextTitle(e.target.value)}
                                     placeholder="e.g. Meeting Notes"
-                                    className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-purple-500/50 transition-colors"
+                                    className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-white/30 transition-colors"
                                 />
                             </div>
                             <div>
@@ -157,7 +157,7 @@ export default function DashboardUpload({ onUploadComplete }: { onUploadComplete
                                     onChange={(e) => setTextContent(e.target.value)}
                                     placeholder="Paste your text here..."
                                     rows={6}
-                                    className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-purple-500/50 transition-colors resize-none"
+                                    className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-white/30 transition-colors resize-none"
                                 />
                             </div>
                             <button
@@ -248,7 +248,7 @@ export default function DashboardUpload({ onUploadComplete }: { onUploadComplete
                                     value={dbUrl}
                                     onChange={(e) => setDbUrl(e.target.value)}
                                     placeholder="postgresql://user:password@localhost:5432/mydb"
-                                    className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-purple-500/50 transition-colors"
+                                    className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-white/30 transition-colors"
                                 />
                             </div>
                             <button

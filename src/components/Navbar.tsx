@@ -59,18 +59,20 @@ export default function Navbar() {
       href: "/platform/chat"
     },
     {
-      title: "Chat History",
-      desc: "Persistent conversations stored in MongoDB.",
+      title: "Knowledge Base",
+      desc: "Manage and search your embedded documents.",
       icon: FiDatabase,
       href: "/platform/history"
     },
     {
-      title: "Secure & Private",
-      desc: "Strict namespace isolation via Pinecone & Firebase.",
+      title: "Enterprise Security",
+      desc: "SOC2 compliant infrastructure with isolation.",
       icon: FiLock,
       href: "/platform/security"
     }
   ];
+
+  if (pathname?.startsWith('/dashboard')) return null;
 
   return (
     <>
@@ -116,26 +118,26 @@ export default function Navbar() {
                 </button>
               </div>
 
-              {/* Developers */}
+              {/* Solutions */}
               <Link
-                href="/developers"
-                className="px-4 py-2 rounded-full text-sm font-medium text-gray-400 hover:text-white transition-all duration-300"
+                href="/solutions"
+                className="px-4 py-2 rounded-full text-sm font-medium text-zinc-400 hover:text-white transition-all duration-300"
               >
-                Developers
+                Solutions
               </Link>
 
-              {/* Security */}
+              {/* Enterprise */}
               <Link
-                href="/security"
-                className="px-4 py-2 rounded-full text-sm font-medium text-gray-400 hover:text-white transition-all duration-300"
+                href="/enterprise"
+                className="px-4 py-2 rounded-full text-sm font-medium text-zinc-400 hover:text-white transition-all duration-300"
               >
-                Security
+                Enterprise
               </Link>
 
               {/* Pricing */}
               <Link
                 href="/pricing"
-                className="px-4 py-2 rounded-full text-sm font-medium text-gray-400 hover:text-white transition-all duration-300"
+                className="px-4 py-2 rounded-full text-sm font-medium text-zinc-400 hover:text-white transition-all duration-300"
               >
                 Pricing
               </Link>
@@ -302,7 +304,7 @@ export default function Navbar() {
                       A high-performance Multi-Tenant Retrieval-Augmented Generation platform. Parse, Index, and Chat with your documents securely.
                     </p>
                     <div className="mt-6">
-                      <Link href="/auth" onClick={() => setActiveDropdown(null)} className="text-sm font-semibold text-purple-400 hover:text-purple-300 flex items-center gap-1">
+                      <Link href="/auth" onClick={() => setActiveDropdown(null)} className="text-sm font-semibold text-white hover:text-zinc-300 flex items-center gap-1 border-b border-white pb-0.5 w-fit">
                         Get Started <FiChevronDown className="rotate-[-90deg]" />
                       </Link>
                     </div>
@@ -311,10 +313,10 @@ export default function Navbar() {
                     {platformFeatures.map((feature, idx) => (
                       <Link key={idx} href={feature.href} onClick={() => setActiveDropdown(null)} className="group flex gap-4">
                         <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-white/10 transition-colors">
-                          <feature.icon className="w-6 h-6 text-purple-400 group-hover:text-purple-300" />
+                          <feature.icon className="w-6 h-6 text-white group-hover:text-zinc-300" />
                         </div>
                         <div>
-                          <h4 className="text-sm font-bold text-white group-hover:text-purple-300 transition-colors">
+                          <h4 className="text-sm font-bold text-white group-hover:text-zinc-300 transition-colors">
                             {feature.title}
                           </h4>
                           <p className="text-sm text-gray-500 mt-1 leading-snug">
@@ -353,7 +355,7 @@ export default function Navbar() {
                       }}
                       className="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5"
                     >
-                      <item.icon className="w-5 h-5 text-purple-400" />
+                      <item.icon className="w-5 h-5 text-zinc-400" />
                       <span className="text-lg font-medium text-white">{item.title}</span>
                     </Link>
                   ))}
@@ -361,8 +363,8 @@ export default function Navbar() {
 
                 <div className="h-px bg-white/10 my-2" />
 
-                <Link href="/developers" onClick={() => { setMobileMenuOpen(false); setActiveDropdown(null); setProfileMenuOpen(false); }} className="text-xl font-bold text-white hover:text-gray-300">Developers</Link>
-                <Link href="/security" onClick={() => { setMobileMenuOpen(false); setActiveDropdown(null); setProfileMenuOpen(false); }} className="text-xl font-bold text-white hover:text-gray-300">Security</Link>
+                <Link href="/solutions" onClick={() => { setMobileMenuOpen(false); setActiveDropdown(null); setProfileMenuOpen(false); }} className="text-xl font-bold text-white hover:text-gray-300">Solutions</Link>
+                <Link href="/enterprise" onClick={() => { setMobileMenuOpen(false); setActiveDropdown(null); setProfileMenuOpen(false); }} className="text-xl font-bold text-white hover:text-gray-300">Enterprise</Link>
                 <Link href="/pricing" onClick={() => { setMobileMenuOpen(false); setActiveDropdown(null); setProfileMenuOpen(false); }} className="text-xl font-bold text-white hover:text-gray-300">Pricing</Link>
                 <Link href="/documentation" onClick={() => { setMobileMenuOpen(false); setActiveDropdown(null); setProfileMenuOpen(false); }} className="text-xl font-bold text-white hover:text-gray-300">Documentation</Link>
 

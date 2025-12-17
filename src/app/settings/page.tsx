@@ -54,14 +54,14 @@ export default function SettingsPage() {
                 display_name: displayName,
                 photo_url: photoUrl ? `${photoUrl.substring(0, 50)}...` : 'null'
             });
-            
+
             const result = await updateUserProfile({
                 display_name: displayName,
                 photo_url: photoUrl
             });
-            
+
             console.log('Profile update result:', result);
-            
+
             await refreshProfile(); // Refresh context
             setSuccessMessage('Profile updated successfully!');
             setTimeout(() => setSuccessMessage(null), 3000);
@@ -134,7 +134,7 @@ export default function SettingsPage() {
                     // Convert to base64 with compression
                     const base64String = canvas.toDataURL('image/jpeg', 0.8);
                     console.log('Image size:', (base64String.length / 1024).toFixed(2) + 'KB');
-                    
+
                     setPhotoUrl(base64String);
                     setCustomUrl('');
                     setUploadingImage(false);
@@ -162,7 +162,7 @@ export default function SettingsPage() {
     };
 
     return (
-        <div className="min-h-screen bg-black text-white selection:bg-purple-500/30">
+        <div className="min-h-screen bg-black text-white selection:bg-white/30">
 
 
             <div className="container mx-auto px-4 pt-32 pb-20 max-w-4xl">
@@ -171,7 +171,7 @@ export default function SettingsPage() {
                     animate={{ opacity: 1, y: 0 }}
                     className="mb-12"
                 >
-                    <h1 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-500 mb-4">
+                    <h1 className="text-4xl font-bold text-white mb-4">
                         Account Settings
                     </h1>
                     <p className="text-gray-400">Manage your profile and preferences.</p>
@@ -189,7 +189,7 @@ export default function SettingsPage() {
                             className="p-8 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-xl"
                         >
                             <h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
-                                <FiUser className="text-purple-400" />
+                                <FiUser className="text-gray-400" />
                                 Profile Information
                             </h2>
 
@@ -202,7 +202,7 @@ export default function SettingsPage() {
                                         type="text"
                                         value={displayName}
                                         onChange={(e) => setDisplayName(e.target.value)}
-                                        className="w-full px-4 py-3 rounded-xl bg-black/50 border border-white/10 text-white placeholder-gray-600 focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 transition-all"
+                                        className="w-full px-4 py-3 rounded-xl bg-black/50 border border-white/10 text-white placeholder-gray-600 focus:outline-none focus:border-white/50 focus:ring-1 focus:ring-white/50 transition-all"
                                         placeholder="Enter your name"
                                     />
                                 </div>
@@ -230,19 +230,19 @@ export default function SettingsPage() {
                             className="p-8 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-xl"
                         >
                             <h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
-                                <FiImage className="text-purple-400" />
+                                <FiImage className="text-gray-400" />
                                 Profile Picture
                             </h2>
 
                             <div className="flex flex-col md:flex-row gap-8 items-start">
                                 {/* Current Avatar Preview */}
                                 <div className="flex flex-col items-center gap-4">
-                                    <div className="w-32 h-32 rounded-full overflow-hidden border-2 border-purple-500/30 bg-white/5 p-1">
+                                    <div className="w-32 h-32 rounded-full overflow-hidden border-2 border-white/30 bg-white/5 p-1">
                                         <div className="w-full h-full rounded-full overflow-hidden bg-black">
                                             {photoUrl ? (
                                                 <img src={photoUrl} alt="Profile" className="w-full h-full object-cover" />
                                             ) : (
-                                                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-indigo-500/20 to-purple-500/20 text-purple-400">
+                                                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-indigo-500/20 to-white/20 text-purple-400">
                                                     <FiUser className="w-12 h-12" />
                                                 </div>
                                             )}
@@ -263,7 +263,7 @@ export default function SettingsPage() {
                                                 type="button"
                                                 onClick={() => fileInputRef.current?.click()}
                                                 disabled={uploadingImage}
-                                                className="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                                                className="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                                             >
                                                 {uploadingImage ? (
                                                     <>
@@ -310,7 +310,7 @@ export default function SettingsPage() {
                                             value={customUrl}
                                             onChange={handleCustomUrlChange}
                                             placeholder="https://example.com/avatar.png"
-                                            className="w-full px-4 py-2 rounded-xl bg-black/50 border border-white/10 text-white placeholder-gray-600 text-sm focus:outline-none focus:border-purple-500/50"
+                                            className="w-full px-4 py-2 rounded-xl bg-black/50 border border-white/10 text-white placeholder-gray-600 text-sm focus:outline-none focus:border-white/50"
                                         />
                                     </div>
 
@@ -330,7 +330,7 @@ export default function SettingsPage() {
                                                         }
                                                     }}
                                                     className={`aspect-square rounded-full overflow-hidden border-2 transition-all ${photoUrl === url
-                                                        ? 'border-purple-500 scale-110 shadow-lg shadow-purple-500/20'
+                                                        ? 'border-white scale-110 shadow-lg shadow-white/20'
                                                         : 'border-transparent hover:border-white/20 hover:scale-105'
                                                         }`}
                                                 >
@@ -353,7 +353,7 @@ export default function SettingsPage() {
                             <button
                                 onClick={handleSave}
                                 disabled={loading}
-                                className="px-8 py-3 rounded-full bg-blue-600 hover:bg-blue-500 text-white font-medium transition-all shadow-lg hover:shadow-blue-500/25 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                                className="px-8 py-3 rounded-full bg-white hover:bg-gray-200 text-black font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                             >
                                 {loading ? <FiLoader className="animate-spin" /> : <FiSave />}
                                 {loading ? 'Saving...' : 'Save Changes'}
@@ -379,9 +379,9 @@ export default function SettingsPage() {
                     {/* Sidebar/Stats (Optional) */}
                     <div className="hidden md:block">
                         <div className="sticky top-32 space-y-6">
-                            <div className="p-6 rounded-3xl bg-gradient-to-br from-indigo-900/20 to-purple-900/20 border border-white/5">
+                            <div className="p-6 rounded-3xl bg-white/5 border border-white/10">
                                 <h3 className="text-lg font-semibold mb-2 text-white">Your Plan</h3>
-                                <p className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400 capitalize mb-4">
+                                <p className="text-3xl font-bold text-white capitalize mb-4">
                                     {userProfile?.plan || 'Free'}
                                 </p>
                                 <button
