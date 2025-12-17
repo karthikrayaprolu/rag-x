@@ -10,6 +10,7 @@ import ParallaxElement from '@/components/ParallaxElement';
 import { ShootingStars } from '@/components/ui/shooting-stars';
 import { StarsBackground } from '@/components/ui/stars-background';
 import { CardSpotlight } from '@/components/ui/card-spotlight'; // Added CardSpotlight
+import { Cover } from '@/components/ui/cover'; // Added Cover component
 import Footer from '@/components/Footer';
 import { useState, useEffect } from 'react';
 import { getUploadStats } from '@/lib/api';
@@ -110,7 +111,7 @@ export default function Home() {
               >
                 <span className="block text-white">Build Intelligent</span>
                 <span className="text-gray-400">
-                  RAG Applications
+                  <Cover>RAG Applications</Cover>
                 </span>
               </motion.h1>
             </ParallaxElement>
@@ -122,7 +123,7 @@ export default function Home() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.4 }}
               >
-                The complete platform for parsing, embedding, and retrieving knowledge. Enterprise-grade security. Zero friction.
+                The complete platform for parsing, embedding, and retrieving knowledge.
               </motion.p>
             </ParallaxElement>
 
@@ -142,12 +143,12 @@ export default function Home() {
                   // User is logged in - show dashboard button
                   <>
                     <Link href="/dashboard">
-                      <button className="group relative px-8 py-3 bg-white text-black font-semibold rounded-full overflow-hidden transition-all duration-300  hover:shadow-[0_0_30px_rgba(147,51,234,0.5)] active:scale-95">
+                      <button className="group relative px-8 py-3 bg-white text-black font-semibold rounded-full overflow-hidden transition-all duration-300 hover:bg-gray-200 active:scale-95">
                         <span className="relative z-10">Go to Dashboard</span>
                       </button>
                     </Link>
                     <Link href="/chat">
-                      <button className="group relative px-8 py-3 bg-white text-black font-semibold rounded-full overflow-hidden transition-all duration-300  hover:shadow-[0_0_30px_rgba(147,51,234,0.5)] active:scale-95">
+                      <button className="group relative px-8 py-3 bg-zinc-900 text-white border border-white/10 font-semibold rounded-full overflow-hidden transition-all duration-300 hover:bg-zinc-800 active:scale-95">
                         <span className="relative z-10">Start Chatting</span>
                       </button>
                     </Link>
@@ -156,12 +157,12 @@ export default function Home() {
                   // User is not logged in - show auth buttons
                   <>
                     <Link href="/auth">
-                      <button className="group relative px-8 py-3 bg-white text-black font-semibold rounded-full overflow-hidden transition-all duration-300  hover:shadow-[0_0_30px_rgba(147,51,234,0.5)] active:scale-95">
+                      <button className="group relative px-8 py-3 bg-white text-black font-semibold rounded-full overflow-hidden transition-all duration-300 hover:bg-gray-200 active:scale-95">
                         <span className="relative z-10">Get Started</span>
                       </button>
                     </Link>
                     <Link href="/auth">
-                      <button className="group relative px-8 py-3 bg-white text-black font-semibold rounded-full overflow-hidden transition-all duration-300 hover:shadow-[0_0_30px_rgba(147,51,234,0.5)] active:scale-95">
+                      <button className="group relative px-8 py-3 bg-zinc-900 text-white border border-white/10 font-semibold rounded-full overflow-hidden transition-all duration-300 hover:bg-zinc-800 active:scale-95">
                         <span className="relative z-10">Login</span>
                       </button>
                     </Link>
