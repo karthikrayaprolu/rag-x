@@ -60,9 +60,12 @@ function DashboardContent() {
         text: 'Your subscription is now active.',
         icon: 'success',
         confirmButtonText: 'Continue',
-        background: '#1a1a1a',
-        color: '#fff',
-        confirmButtonColor: '#fff',
+        background: '#09090b',
+        color: '#e5e7eb',
+        confirmButtonColor: '#ffffff',
+        customClass: {
+          confirmButton: '!text-black !font-bold !px-6 !py-2 !rounded-full'
+        }
       });
       window.history.replaceState({}, '', '/dashboard');
       setTimeout(async () => await refreshProfile(), 2000);
