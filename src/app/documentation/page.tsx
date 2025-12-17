@@ -57,7 +57,22 @@ const FlowStep = ({ number, title, description, icon: Icon, isLast = false }: { 
     </div>
 );
 
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/contexts/AuthContext';
+
 export default function DocumentationPage() {
+    const { user } = useAuth();
+    const router = useRouter();
+
+    const handleApiKeysClick = (e: React.MouseEvent) => {
+        e.preventDefault();
+        if (user) {
+            router.push('/dashboard/api-keys');
+        } else {
+            router.push('/auth');
+        }
+    };
+
     return (
         <div className="min-h-screen bg-black text-white selection:bg-white/30 pt-32 pb-20">
             <div className="container mx-auto px-4 lg:px-8 max-w-6xl">
@@ -252,17 +267,17 @@ export default function DocumentationPage() {
                             Explore the comprehensive API reference to start building your own RAG pipelines programmatically.
                         </p>
                         <div className="flex justify-center gap-4">
-                            <a href="/dashboard/api-keys" className="px-6 py-3 bg-white text-black font-bold rounded-full hover:bg-gray-200 transition-colors">
+                            <button onClick={handleApiKeysClick} className="px-6 py-3 bg-white text-black font-bold rounded-full hover:bg-gray-200 transition-colors cursor-pointer">
                                 Get API Keys
-                            </a>
-                            <a href="https://github.com/example/ragx-docs" className="px-6 py-3 border border-white/20 text-white font-bold rounded-full hover:bg-white/5 transition-colors">
+                            </button>
+                            <a href="https://github.com/karthikrayaprolu/rag-x" className="px-6 py-3 border border-white/20 text-white font-bold rounded-full hover:bg-white/5 transition-colors">
                                 View Swagger Docs
                             </a>
                         </div>
                     </div>
                 </div>
-
             </div>
+
         </div>
     );
 }

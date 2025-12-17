@@ -3,16 +3,30 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { FiUser } from 'react-icons/fi';
 
+import { usePathname } from 'next/navigation';
+
 export default function Header() {
     const { user, userProfile } = useAuth();
+    const pathname = usePathname();
+
+    const getPageTitle = (path: string) => {
+        switch (path) {
+            case '/dashboard': return 'Overview';
+            case '/dashboard/documents': return 'Knowledge Base';
+            case '/dashboard/api-keys': return 'API Keys';
+            case '/settings': return 'Settings';
+            case '/chat': return 'Playground';
+            default: return 'Overview';
+        }
+    };
 
     return (
         <header className="h-16 bg-[#0A0A0A] border-b border-white/5 flex items-center justify-between px-8 fixed top-0 right-0 left-64 z-30 backdrop-blur-xl bg-opacity-80">
-            {/* Breadcrumbs or Title (Placeholder for now) */}
+            {/* Dynamic Breadcrumbs */}
             <div className="flex items-center text-sm text-gray-500">
                 <span className="hover:text-white transition-colors cursor-pointer">Dashboard</span>
                 <span className="mx-2">/</span>
-                <span className="text-white">Overview</span>
+                <span className="text-white">{getPageTitle(pathname)}</span>
             </div>
 
             {/* Profile */}

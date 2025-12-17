@@ -23,7 +23,7 @@ const navigation = [
 
 export default function Sidebar() {
     const pathname = usePathname();
-    const { logout } = useAuth();
+    const { logout, userProfile } = useAuth();
 
     return (
         <div className="w-64 h-screen bg-[#0A0A0A] border-r border-white/5 flex flex-col fixed left-0 top-0 z-40">
@@ -31,7 +31,9 @@ export default function Sidebar() {
             <div className="h-16 flex items-center px-6 border-b border-white/5">
                 <Link href="/" className="flex items-center gap-2">
                     <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">RAGx</span>
-                    <span className="text-xs px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-gray-400">PRO</span>
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-gray-400">
+                        {userProfile?.plan ? (userProfile.plan === 'free' ? 'STARTER' : userProfile.plan.toUpperCase()) : 'LOADING...'}
+                    </span>
                 </Link>
             </div>
 
@@ -46,8 +48,8 @@ export default function Sidebar() {
                                 key={item.name}
                                 href={item.href}
                                 className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${isActive
-                                        ? 'bg-white text-black'
-                                        : 'text-gray-400 hover:text-white hover:bg-white/5'
+                                    ? 'bg-white text-black'
+                                    : 'text-gray-400 hover:text-white hover:bg-white/5'
                                     }`}
                             >
                                 <item.icon className={`w-4 h-4 ${isActive ? 'text-black' : 'text-gray-500 group-hover:text-white'}`} />

@@ -11,26 +11,20 @@ const PRICE_IDS = {
     PRO: 'price_1Sdlu6Ru2lPW20DiERsErBf5'
 };
 
-export default function PricingPage() {
-    const [loadingPriceId, setLoadingPriceId] = useState<string | null>(null);
-    const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-    const [isLoadingProfile, setIsLoadingProfile] = useState(true);
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/contexts/AuthContext';
 
-    useEffect(() => {
-        const fetchProfile = async () => {
-            try {
-                const profile = await getUserProfile();
-                setUserProfile(profile);
-            } catch (error) {
-                console.log('User not logged in or failed to fetch profile');
-            } finally {
-                setIsLoadingProfile(false);
-            }
-        };
-        fetchProfile();
-    }, []);
+export default function PricingPage() {
+    const { user, userProfile, loading } = useAuth();
+    const router = useRouter();
+    const [loadingPriceId, setLoadingPriceId] = useState<string | null>(null);
 
     const handleSubscribe = async (priceId: string) => {
+        if (!user) {
+            router.push('/auth');
+            return;
+        }
+
         try {
             setLoadingPriceId(priceId);
             const response = await createCheckoutSession(priceId);
@@ -39,7 +33,6 @@ export default function PricingPage() {
             }
         } catch (error) {
             console.error('Checkout failed:', error);
-            // alert('Failed to start checkout. Please try again.');
         } finally {
             setLoadingPriceId(null);
         }
@@ -125,7 +118,7 @@ export default function PricingPage() {
 
                         <button
                             onClick={() => handleSubscribe(PRICE_IDS.PRO)}
-                            disabled={loadingPriceId === PRICE_IDS.PRO || userProfile?.plan === 'pro' || isLoadingProfile}
+                            disabled={loadingPriceId === PRICE_IDS.PRO || userProfile?.plan === 'pro' || loading}
                             className={`w-full py-3 rounded-xl font-medium mb-8 transition-colors ${userProfile?.plan === 'pro'
                                 ? 'bg-green-500/20 text-green-400 border border-green-500/50 cursor-default'
                                 : 'bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50 disabled:cursor-not-allowed'
@@ -133,7 +126,7 @@ export default function PricingPage() {
                         >
                             {loadingPriceId === PRICE_IDS.PRO
                                 ? 'Redirecting...'
-                                : isLoadingProfile
+                                : loading
                                     ? 'Loading...'
                                     : userProfile?.plan === 'pro'
                                         ? 'Current Plan'
