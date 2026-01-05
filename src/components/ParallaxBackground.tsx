@@ -12,8 +12,11 @@ export default function ParallaxBackground() {
 
     return (
         <div className="fixed inset-0 overflow-hidden pointer-events-none -z-50 bg-[#050505]">
-            {/* Subtle Texture */}
-            <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.03] mix-blend-overlay"></div>
+            {/* Subtle Texture - Using CSS pattern instead of image */}
+            <div className="absolute inset-0 opacity-[0.03] mix-blend-overlay" style={{
+                backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,0.03) 2px, rgba(255,255,255,0.03) 4px)',
+                backgroundSize: '4px 4px'
+            }}></div>
 
             {/* Top Left Subtle Light */}
             <motion.div
