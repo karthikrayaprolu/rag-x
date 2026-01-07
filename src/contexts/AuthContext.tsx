@@ -46,6 +46,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const refreshProfile = useCallback(async () => {
     if (auth.currentUser) {
       try {
+        // Force token refresh before fetching profile
+        await auth.currentUser.getIdToken(true);
         const profile = await getUserProfile();
         setUserProfile(profile);
       } catch (error) {

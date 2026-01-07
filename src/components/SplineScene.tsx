@@ -40,19 +40,26 @@ export default function SplineScene() {
     }, []);
 
     return (
-        <div ref={containerRef} className="w-full h-[400px] lg:h-[500px] relative flex items-center justify-center overflow-hidden">
+        <div 
+            ref={containerRef} 
+            className="w-full h-[400px] lg:h-[500px] relative flex items-center justify-center overflow-hidden"
+            style={{ position: 'relative', minHeight: '400px' }}
+        >
             {!isLoaded && (
                 <div className="absolute inset-0 flex items-center justify-center bg-gray-900/20 rounded-xl animate-pulse z-10">
                     <span className="text-gray-500 font-medium">Loading 3D Scene...</span>
                 </div>
             )}
 
-            <div className={`w-full h-full transition-opacity duration-1000 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
+            <div 
+                className={`w-full h-full transition-opacity duration-1000 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
+                style={{ position: 'relative', width: '100%', height: '100%' }}
+            >
                 {isLoaded && (
                     /* @ts-ignore - spline-viewer is a custom element */
                     <spline-viewer
                         url="https://prod.spline.design/0LsgVd1AfB9ZbPti/scene.splinecode"
-                        style={{ width: '100%', height: '100%' }}
+                        style={{ width: '100%', height: '100%', display: 'block' }}
                     />
                 )}
             </div>

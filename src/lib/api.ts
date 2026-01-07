@@ -46,41 +46,61 @@ async function getAuthToken(): Promise<string | null> {
 }
 
 /**
- * Make an authenticated API request with retry logic
+ * Make an authenticated API request with retry logic and token refresh
  */
 async function apiRequest<T>(
   endpoint: string,
   options: RequestInit = {},
   retries: number = 3
 ): Promise<T> {
-  const token = await getAuthToken();
+  let token = await getAuthToken();
 
-  const headers: Record<string, string> = {};
-
-  // Add auth header if user is logged in
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
-  } else {
-    // User must be logged in to make API requests
+  if (!token) {
     throw new Error('Please log in to continue');
   }
 
-  // Don't set Content-Type for FormData (browser will set it with boundary)
-  if (!(options.body instanceof FormData)) {
-    headers['Content-Type'] = 'application/json';
-  }
+  const makeRequest = async (authToken: string) => {
+    const headers: Record<string, string> = {
+      'Authorization': `Bearer ${authToken}`,
+    };
 
-  const url = `${API_BASE_URL}${endpoint}`;
+    // Don't set Content-Type for FormData (browser will set it with boundary)
+    if (!(options.body instanceof FormData)) {
+      headers['Content-Type'] = 'application/json';
+    }
+
+    const url = `${API_BASE_URL}${endpoint}`;
+
+    return fetch(url, {
+      ...options,
+      headers: {
+        ...headers,
+        ...(options.headers as Record<string, string>),
+      },
+    });
+  };
 
   for (let attempt = 0; attempt <= retries; attempt++) {
     try {
-      const response = await fetch(url, {
-        ...options,
-        headers: {
-          ...headers,
-          ...(options.headers as Record<string, string>),
-        },
-      });
+      const response = await makeRequest(token);
+
+      // Handle 401 - Try to refresh token once
+      if (response.status === 401 && attempt === 0) {
+        const user = await waitForAuth();
+        if (user) {
+          // Force refresh the token
+          token = await user.getIdToken(true);
+          // Retry the request with new token
+          const retryResponse = await makeRequest(token);
+          
+          if (!retryResponse.ok) {
+            const errorData = await retryResponse.json().catch(() => ({ detail: 'Request failed' }));
+            throw new Error(errorData.detail || `API error: ${retryResponse.status}`);
+          }
+          
+          return await retryResponse.json();
+        }
+      }
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({ detail: 'Request failed' }));
@@ -88,7 +108,7 @@ async function apiRequest<T>(
 
         console.error(`API Error [${response.status}]:`, errorMessage);
 
-        // Don't retry on 4xx errors (client errors)
+        // Don't retry on 4xx errors (except 401 which we already handled)
         if (response.status >= 400 && response.status < 500) {
           throw new Error(errorMessage);
         }
