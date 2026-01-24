@@ -1,9 +1,21 @@
 'use client';
 
 import { useEffect } from 'react';
+import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import ChatBox from '../../components/ChatBox';
+
+const ChatBox = dynamic(() => import('../../components/ChatBox'), {
+  ssr: false,
+  loading: () => (
+    <div className="fixed inset-0 bg-black text-white flex items-center justify-center">
+      <div className="text-center">
+        <div className="animate-spin w-8 h-8 border-2 border-white border-t-transparent rounded-full mx-auto mb-4"></div>
+        <p className="text-gray-400">Loading chat...</p>
+      </div>
+    </div>
+  ),
+});
 
 export default function ChatPage() {
   const { user, loading } = useAuth();

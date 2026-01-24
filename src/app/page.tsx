@@ -11,11 +11,10 @@ import { ShootingStars } from '@/components/ui/shooting-stars';
 import { StarsBackground } from '@/components/ui/stars-background';
 import { CardSpotlight } from '@/components/ui/card-spotlight'; // Added CardSpotlight
 import { Cover } from '@/components/ui/cover'; // Added Cover component
-import Footer from '@/components/Footer';
 import { useState, useEffect } from 'react';
 import { getUploadStats } from '@/lib/api';
 
-// Dynamically import SplineScene to prevent SSR issues
+// Dynamically import heavy components to prevent blocking during page transitions
 const SplineScene = dynamic(() => import('@/components/SplineScene'), {
   ssr: false,
   loading: () => (
@@ -23,6 +22,10 @@ const SplineScene = dynamic(() => import('@/components/SplineScene'), {
       <div className="animate-pulse text-gray-500">Loading 3D viewer...</div>
     </div>
   ),
+});
+
+const Footer = dynamic(() => import('@/components/Footer'), {
+  ssr: false,
 });
 
 export default function Home() {

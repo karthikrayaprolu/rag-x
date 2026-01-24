@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, Suspense } from 'react';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
@@ -17,8 +18,16 @@ import {
 import { PiBrain } from 'react-icons/pi';
 import { getUploadStats, healthCheck, getApiKey, generateApiKey, getUserDocuments } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
-import DashboardUpload from '@/components/DashboardUpload';
 import Swal from 'sweetalert2';
+
+const DashboardUpload = dynamic(() => import('@/components/DashboardUpload'), {
+  ssr: false,
+  loading: () => (
+    <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-8 flex items-center justify-center">
+      <div className="animate-spin w-6 h-6 border-2 border-white border-t-transparent rounded-full"></div>
+    </div>
+  ),
+});
 
 function DashboardContent() {
   const { user, loading: authLoading, userProfile, refreshProfile } = useAuth();
