@@ -102,6 +102,18 @@ async function apiRequest<T>(
         }
       }
 
+      // Handle 503 (Service Unavailable) - likely cold start on Render free tier
+      if (response.status === 503) {
+        if (attempt < retries) {
+          // Wait longer for cold starts (15-30 seconds)
+          const waitTime = 15000 + (attempt * 10000); // 15s, 25s, 35s
+          console.log(`Server is waking up (cold start), waiting ${waitTime/1000}s...`);
+          await new Promise(resolve => setTimeout(resolve, waitTime));
+          continue;
+        }
+        throw new Error('Service temporarily unavailable. The server might be starting up. Please try again in a moment.');
+      }
+
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({ detail: 'Request failed' }));
         const errorMessage = errorData.detail || `API error: ${response.status}`;
@@ -113,9 +125,10 @@ async function apiRequest<T>(
           throw new Error(errorMessage);
         }
 
-        // Retry on 5xx errors (server errors)
+        // Retry on 5xx errors (server errors) with exponential backoff
         if (attempt < retries) {
-          await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1)));
+          const waitTime = 2000 * Math.pow(2, attempt); // 2s, 4s, 8s
+          await new Promise(resolve => setTimeout(resolve, waitTime));
           continue;
         }
 
@@ -130,9 +143,11 @@ async function apiRequest<T>(
         throw error;
       }
 
-      // Network errors - retry
-      if (error.name === 'TypeError' || error.message.includes('fetch')) {
-        await new Promise(resolve => setTimeout(resolve, 1000 * (attempt + 1)));
+      // Network errors or CORS errors - likely cold start
+      if (error.name === 'TypeError' || error.message.includes('fetch') || error.message.includes('CORS')) {
+        const waitTime = 15000 + (attempt * 10000); // 15s, 25s, 35s
+        console.log(`Network error (possibly cold start), waiting ${waitTime/1000}s...`);
+        await new Promise(resolve => setTimeout(resolve, waitTime));
         continue;
       }
 
