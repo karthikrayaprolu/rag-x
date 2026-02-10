@@ -99,7 +99,7 @@ export default function DocumentsPage() {
                                         </div>
                                     </td>
                                     <td className="px-6 py-4 text-sm text-gray-400 uppercase">{doc.file_type}</td>
-                                    <td className="px-6 py-4 text-sm text-gray-400">{(doc.file_size / 1024).toFixed(1)} KB</td>
+                                    <td className="px-6 py-4 text-sm text-gray-400">{doc.file_size ? (doc.file_size / 1024).toFixed(1) : '0.0'} KB</td>
                                     <td className="px-6 py-4 text-sm text-gray-400">{new Date(doc.created_at).toLocaleDateString()}</td>
                                     <td className="px-6 py-4 text-right">
                                         <button

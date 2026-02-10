@@ -113,8 +113,8 @@ export default function DashboardUpload({ onUploadComplete }: { onUploadComplete
             </div>
 
             <div className="p-6">
-                <AnimatePresence mode="wait">
-                    {/* Status Message */}
+                {/* Status Message - Outside AnimatePresence to avoid mode="wait" conflict */}
+                <AnimatePresence>
                     {status.message && (
                         <motion.div
                             initial={{ opacity: 0, y: -10 }}
@@ -129,7 +129,10 @@ export default function DashboardUpload({ onUploadComplete }: { onUploadComplete
                             <span className="text-sm">{status.message}</span>
                         </motion.div>
                     )}
+                </AnimatePresence>
 
+                {/* Tab Content - Separate AnimatePresence for tabs only */}
+                <AnimatePresence mode="wait">
                     {/* Text Tab */}
                     {activeTab === 'text' && (
                         <motion.div
